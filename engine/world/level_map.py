@@ -11,24 +11,25 @@ from engine.entities.container import Container
 from engine.world.block import Block
 
 
-
 class LevelMap:
-    _level: List[List[Optional[Block]]]
-    _world_map_x: int
-    _world_map_y: int
-    _level_map_width: int
-    _level_map_height: int
-
-    _enemies_list: List[HostileEntity]
-    _friendly_entity_list: List[PeacefulEntity]
-    _chests: List[Container]
+    # _level: List[List[Optional[Block]]]
+    # _world_map_x: int
+    # _world_map_y: int
+    # _level_map_width: int
+    # _level_map_height: int
+    # _enemies_list: List[HostileEntity]
+    # _friendly_entity_list: List[PeacefulEntity]
+    # _chests: List[Container]
 
     def __init__(self, world_map_x: int, world_map_y: int, image: Image.Image):
         self._world_map_x = world_map_x
         self._world_map_y = world_map_y
         self._level_map_width = image.size[0]
-        self._leve_map_height = image.size[1]
+        self._level_map_height = image.size[1]
         self._level = [[None for _ in range(self._level_map_width)] for _ in range(self._level_map_height)]
+        self._enemies_list = []
+        self._friendly_entity_list = []
+        self._chests = []
 
         for y in range(self._level_map_height):
             for x in range(self._level_map_width):
@@ -99,12 +100,67 @@ class LevelMap:
 
                     orientation = self.find_orientation(image, self, r, g, b, x, y)
 
-
-
+                    if orientation == LevelMap.BlockOrientation.CENTER:
+                        self._level[y][x] = Block(x, y, "path_center", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_UP:
+                        self._level[y][x] = Block(x, y, "path_straight_up", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_straight_down", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_LEFT:
+                        self._level[y][x] = Block(x, y, "path_straight_left", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_RIGHT:
+                        self._level[y][x] = Block(x, y, "path_straight_right", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_corner_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_UP:
+                        self._level[y][x] = Block(x, y, "path_corner_left_up", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_RIGHT_UP:
+                        self._level[y][x] = Block(x, y, "path_corner_right_up", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_RIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_corner_right_down", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_corner_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_LEFT_UP:
+                        self._level[y][x] = Block(x, y, "path_turn_left_up", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_turn_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "path_turn_right_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_UP:
+                        self._level[y][x] = Block(x, y, "path_turn_right_up", True)
 
                 elif (195, 193, 0) == (r, g, b):
-                    # TODO -> obracanie brzegu
-                    pass
+
+                    orientation = self.find_orientation(image, self, r, g, b, x, y)
+
+                    if orientation == LevelMap.BlockOrientation.CENTER:
+                        self._level[y][x] = Block(x, y, "shore_center", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_UP:
+                        self._level[y][x] = Block(x, y, "shore_straight_up", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_straight_down", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_LEFT:
+                        self._level[y][x] = Block(x, y, "shore_straight_left", True)
+                    elif orientation == LevelMap.BlockOrientation.STRAIGHT_RIGHT:
+                        self._level[y][x] = Block(x, y, "shore_straight_right", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_corner_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_UP:
+                        self._level[y][x] = Block(x, y, "shore_corner_left_up", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_RIGHT_UP:
+                        self._level[y][x] = Block(x, y, "shore_corner_right_up", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_RIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_corner_right_down", True)
+                    elif orientation == LevelMap.BlockOrientation.CORNER_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_corner_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_LEFT_UP:
+                        self._level[y][x] = Block(x, y, "shore_turn_left_up", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_LEFT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_turn_left_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_DOWN:
+                        self._level[y][x] = Block(x, y, "shore_turn_right_down", True)
+                    elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_UP:
+                        self._level[y][x] = Block(x, y, "shore_turn_right_up", True)
 
                 elif (224, 42, 0) == (r, g, b):
                     self._level[y][x] = Block(x, y, "campfire", False)
@@ -287,7 +343,7 @@ class LevelMap:
             if not check_square[0][1] and not check_square[1][0] and check_square[0][0]:
                 return LevelMap.BlockOrientation.CORNER_LEFT_DOWN
 
-            if not check_square[0][1] and not check_square[1][2] and check_square[0][2]
+            if not check_square[0][1] and not check_square[1][2] and check_square[0][2]:
                 return LevelMap.BlockOrientation.CORNER_LEFT_UP
 
             if check_square[2][1]:
