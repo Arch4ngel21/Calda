@@ -1,10 +1,19 @@
 import sys
 
 import pygame
+from typing import List
 
 from engine.entities.hostile_entity import HostileEntity
+from engine.entities.peaceful_entity import PeacefulEntity
+from engine.entities.container import Container
+from engine.collectibles.collectible import Collectible
+from engine.entities.missiles.missile import Missile
+from engine.entities.effects.screen_effect import ScreenEffect
+from engine.entities.effects.screen_prompt import ScreenPrompt
 from engine.world.map import Map
+from engine.world.level_map import LevelMap
 from utilities.map_direction import MapDirection
+from utilities.resource_manager import ResourceManager
 from engine.entities.player import Player
 
 
@@ -13,16 +22,16 @@ class GameEngine:
     _clock = pygame.time.Clock()
 
     _keys = [] # tablica przycisków
-    _player = None
-    _hostile_entities = []
-    _peaceful_entities = []
-    _chests = []
-    _items = []
-    _missiles = []
-    _effects = []
-    _prompts = []
+    _player: Player = None
+    _hostile_entities: List[HostileEntity] = []
+    _peaceful_entities: List[PeacefulEntity] = []
+    _chests: List[Container] = []
+    _items: List[Collectible] = []
+    _missiles: List[Missile] = []
+    _effects: List[ScreenEffect] = []
+    _prompts: List[ScreenPrompt] = []
 
-    _world_map = None
+    _world_map: Map = None
     _current_level = None
     _is_running = True
 
@@ -58,11 +67,25 @@ class GameEngine:
 
     @staticmethod
     def start_engine():
-        pass
+        # TODO
+        GameEngine._player = Player(480, 900, 10, 2)
+        GameEngine.generate_levels()
 
     @staticmethod
     def generate_levels():
-        pass
+
+        levels = [LevelMap(2, 0, ResourceManager.level_2_0), LevelMap(3, 0, ResourceManager.level_3_0),
+                  LevelMap(2, 1, ResourceManager.level_2_1), LevelMap(3, 1, ResourceManager.level_3_1),
+                  LevelMap(4, 1, ResourceManager.level_4_1), LevelMap(0, 2, ResourceManager.level_0_2),
+                  LevelMap(1, 2, ResourceManager.level_1_2), LevelMap(4, 2, ResourceManager.level_4_2),
+                  LevelMap(0, 3, ResourceManager.level_0_3), LevelMap(2, 3, ResourceManager.level_2_3),
+                  LevelMap(3, 3, ResourceManager.level_3_3), LevelMap(4, 3, ResourceManager.level_4_3),
+                  LevelMap(0, 4, ResourceManager.level_0_4), LevelMap(1, 3, ResourceManager.level_1_3),
+                  LevelMap(1, 4, ResourceManager.level_1_4), LevelMap(2, 4, ResourceManager.level_2_4),
+                  LevelMap(3, 4, ResourceManager.level_3_4), LevelMap(4, 4, ResourceManager.level_4_4)]
+
+        for level in levels:
+            GameEngine._world_map.add_level(level)
 
 
 def handle_player_movement(direction: MapDirection):

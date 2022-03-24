@@ -186,14 +186,13 @@ class LevelMap:
                 else:
                     self._level[y][x] = Block(x, y, "error_block", False)
 
-
     def get_world_map_x(self) -> int:
         return self._world_map_x
 
     def get_world_map_y(self) -> int:
         return self._world_map_y
 
-    def get_block(self, x: int, y: int) -> Block:
+    def get_block(self, x: int, y: int) -> Optional[Block]:
         return self._level[y][x]
 
     def get_level_map_width(self) -> int:
