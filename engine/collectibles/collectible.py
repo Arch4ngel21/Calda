@@ -1,0 +1,2 @@
+class Collectible:
+    pass
