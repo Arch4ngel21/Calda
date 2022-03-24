@@ -10,7 +10,6 @@ from engine.entities.player import Player
 
 class GameEngine:
     _initialized = False
-    _clock = pygame.time.Clock()
 
     _keys = [] # tablica przycisków
     _player = None
@@ -28,7 +27,9 @@ class GameEngine:
 
     @staticmethod
     def run():
+        clock = pygame.time.Clock()
         while True:
+            clock.tick(30)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
