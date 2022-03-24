@@ -1,0 +1,3 @@
+
+class EmptyLevelMapException(Exception):
+    pass
