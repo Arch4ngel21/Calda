@@ -1,0 +1,2 @@
+class Missile:
+    pass

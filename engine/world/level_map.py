@@ -1,4 +1,3 @@
-
 from engine.entities.hostile_entity import HostileEntity
 from engine.entities.peaceful_entity import PeacefulEntity
 from engine.entities.container import Container
@@ -29,7 +28,3 @@ class LevelMap:
         for y in range(self.level_map_height):
             for x in range(self.level_map_width):
                 px = image.getpixel((x, y))
-
-
-
-
