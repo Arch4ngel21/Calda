@@ -29,8 +29,7 @@ class LevelMap:
         for y in range(self.level_map_height):
             for x in range(self.level_map_width):
                 px = image.getpixel((x, y))
-                # match px:
-                #     case
+
 
 
 
