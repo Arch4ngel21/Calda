@@ -65,7 +65,18 @@ class LevelMap:
                         level[y][x] = Block(x, y, "cobblestone", True)
 
                 elif (0, 83, 197) == (r, g, b):
-                    level[y][x] = (x, y, "water", False)
+                    level[y][x] = Block(x, y, "water", False)
+
+                elif (103, 43, 138) == (r, g, b):
+                    rand = random.randint(0, 4)
+                    if rand == 0:
+                        level[y][x] = Block(x, y, "dungeon_bricks1", False)
+                    elif rand == 1:
+                        level[y][x] = Block(x, y, "dungeon_bricks2", False)
+                    elif rand == 2:
+                        level[y][x] = Block(x, y, "dungeon_bricks3", False)
+                    elif rand == 3:
+                        level[y][x] = Block(x, y, "dungeon_bricks4", False)
 
                 elif (150, 106, 0) == (r, g, b):
                     # TODO -> obracanie ścieżki
@@ -75,11 +86,24 @@ class LevelMap:
                     # TODO -> obracanie brzegu
                     pass
 
+                elif (224, 42, 0) == (r, g, b):
+                    level[y][x] = Block(x, y, "campfire", False)
+
                 elif (116, 87, 0) == (r, g, b):
                     level[y][x] = Block(x, y, "tree_bottom", False)
 
                 elif (8, 64, 0) == (r, g, b):
                     level[y][x] = Block(x, y, "tree_up", False)
 
+                elif (0, 252, 255) == (r, g, b):
+                    if image.getpixel((x+1, y)) == (0, 252, 255):
+                        level[y][x] = Block(x, y, "dungeon_entrance_left", False)
+                    else:
+                        level[y][x] = Block(x, y, "dungeon_entrance_right", False)
+
+
+
+                else:
+                    level[y][x] = Block(x, y, "error_block", False)
 
 
