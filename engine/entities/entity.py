@@ -15,8 +15,8 @@ class Entity:
         self._facing: MapDirection = MapDirection.NORTH
         self._is_following_player: bool = False
         self._is_damaged = False
-        self._hit_box: pygame.Rect = None
-        self._bounding_box: pygame.Rect = None
+        self._hit_box: pygame.Rect
+        self._bounding_box: pygame.Rect
             
     def heal(self, health_amount: int):
         self._health += health_amount

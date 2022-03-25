@@ -1,10 +1,15 @@
+import pygame
+
 from engine.entities.missiles.missile import Missile
 from utilities.map_direction import MapDirection
 
 
 class GhostFireball(Missile):
     def __init__(self, x: int, y: int, facing: MapDirection):
-        super().__init__(x, y, 2, facing, 10, 8, 8, 3)
+        super().__init__(x, y, 2, facing)
+        self._lifespan: int = 10
+        self._damage: int = 3
+        self._bound_box: pygame.Rect = pygame.Rect(x, y, 8, 8)
 
     def increase_animation_frame(self):
         self._animation_frame += 1
