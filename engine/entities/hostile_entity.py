@@ -23,6 +23,7 @@ class HostileEntity(Entity):
         self._facing: MapDirection = MapDirection.WEST
 
     def move(self):
+        # TODO
         pass
 
     def increase_animation_frame(self):
@@ -39,6 +40,7 @@ class HostileEntity(Entity):
         pass #po co to
 
     def follow_player(self):
+        # TODO
         pass
 
     @staticmethod
