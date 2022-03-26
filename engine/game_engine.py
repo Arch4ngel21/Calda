@@ -4,6 +4,7 @@ import pygame
 from typing import List
 
 from engine.entities.hostile_entity import HostileEntity
+from engine.entities.hostile_entity import HostileEntityType
 from engine.entities.peaceful_entity import PeacefulEntity
 from engine.entities.peaceful_entity import PeacefulEntityType
 from engine.entities.peaceful_entity import Entity
@@ -152,16 +153,26 @@ class GameEngine:
         for missile in to_remove:
             GameEngine._missiles.remove(missile)
 
-
-
-
     @staticmethod
     def _handle_enemies_attack():
+        for enemy in GameEngine._hostile_entities:
+            enemy.decrease_attack_frame()
+            if enemy.hostile_entity_type == HostileEntityType.GHOST:
+                GameEngine._handle_attack_ghost(enemy)
+            # TODO kolizje
+
+    @staticmethod
+    def _handle_attack_ghost(ghost: HostileEntity):
         pass
 
     @staticmethod
     def _handle_peaceful_entities_actions():
-        pass
+        player: Player = GameEngine._player
+        for entity in GameEngine._peaceful_entities:
+            if entity.peaceful_entity_type == PeacefulEntityType.TREE_OF_HEALTH:
+                entity.increase_passive_effect_frame()
+                if GameEngine._distance(player.x, player.y, entity.x, entity.y) <= 128 and entity.passive_effect_frame == 100:
+                    player.heal(2)
 
     @staticmethod
     def _handle_effects():

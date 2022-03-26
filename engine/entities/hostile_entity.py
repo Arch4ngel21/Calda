@@ -58,3 +58,7 @@ class HostileEntity(Entity):
     def is_attacking(self) -> bool:
         return self._is_attacking
 
+    @property
+    def hostile_entity_type(self) -> HostileEntityType:
+        return self._entity_type
+

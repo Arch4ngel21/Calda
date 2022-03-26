@@ -7,7 +7,7 @@ from engine.entities.entity import Entity
 class PeacefulEntityType(Enum):
     SIGN = 1
     DUNGEON_ENTRANCE = 2
-    TRE_OF_HEALTH = 3
+    TREE_OF_HEALTH = 3
 
 
 class PeacefulEntity(Entity):
@@ -30,3 +30,7 @@ class PeacefulEntity(Entity):
     @property
     def peaceful_entity_type(self) -> PeacefulEntityType:
         return self._peaceful_entity_type
+
+    @property
+    def passive_effect_frame(self) -> int:
+        return self._passive_effect_frame
