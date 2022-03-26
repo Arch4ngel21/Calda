@@ -129,10 +129,15 @@ class GameEngine:
                     GameEngine._handle_enter_dungeon()
             GameEngine._handle_pick_up_items()
 
-
     @staticmethod
     def _handle_enemies_movement():
-        pass
+        # TODO animation
+        for enemy in GameEngine._hostile_entities:
+            enemy.follow_player()
+            if GameEngine._can_entity_move(enemy) and not enemy.is_attacking:
+                enemy.move()
+            else:
+                enemy.facing = MapDirection.opposite(enemy.facing)
 
     @staticmethod
     def _handle_missiles():

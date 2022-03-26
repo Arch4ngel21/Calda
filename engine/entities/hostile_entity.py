@@ -54,4 +54,7 @@ class HostileEntity(Entity):
             return MapDirection.SOUTH
         return MapDirection.WEST
 
+    @property
+    def is_attacking(self) -> bool:
+        return self._is_attacking
 
