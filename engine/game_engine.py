@@ -188,6 +188,7 @@ class GameEngine:
 
     @staticmethod
     def _handle_pick_up_items():
+        # TODO jak ogarniemy kolizje
         pass
 
     @staticmethod
@@ -196,7 +197,8 @@ class GameEngine:
 
     @staticmethod
     def _start_player_attack_animation():
-        pass
+        if GameEngine._player.attack_frame == 0 and GameEngine._player.has_sword:
+            GameEngine._player.attack_frame = 30
 
     @staticmethod
     def _handle_enemies_drop():
