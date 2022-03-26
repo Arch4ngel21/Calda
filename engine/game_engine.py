@@ -193,7 +193,11 @@ class GameEngine:
 
     @staticmethod
     def _handle_player_attack():
-        pass
+        player: Player = GameEngine._player
+        if player.attack_frame == 0:
+            return
+        player.decrease_attack_frame()
+        # TODO kolizje
 
     @staticmethod
     def _start_player_attack_animation():

@@ -27,6 +27,11 @@ class Player(Entity):
     def add_coin(self):
         self._coins += 1
 
+    def decrease_attack_frame(self):
+        self._attack_frame -= 1
+        if self._attack_frame < 0:
+            self._attack_frame = 0
+
     @property
     def has_sword(self) -> bool:
         return self._has_sword
