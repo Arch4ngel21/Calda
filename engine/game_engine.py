@@ -176,7 +176,15 @@ class GameEngine:
 
     @staticmethod
     def _handle_effects():
-        pass
+        to_remove = []
+        for effect in GameEngine._effects:
+            if isinstance(effect, ChestOpenEffect):
+                effect.increase_animation_frame()
+                effect.move()
+                if effect.animation_frame == effect.effect_duration:
+                    to_remove.append(effect)
+        for effect in to_remove:
+            GameEngine._effects.remove(effect)
 
     @staticmethod
     def _handle_pick_up_items():

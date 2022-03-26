@@ -30,3 +30,11 @@ class ScreenEffect:
         if not isinstance(value, int):
             raise ValueError("y must be an int")
         self._y = value
+
+    @property
+    def animation_frame(self) -> int:
+        return self._animation_frame
+
+    @property
+    def effect_duration(self) -> int:
+        return self.effect_duration
