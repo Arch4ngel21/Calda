@@ -6,6 +6,7 @@ from typing import List
 
 from engine.entities.hostile_entity import HostileEntity
 from engine.entities.hostile_entity import HostileEntityType
+from engine.entities.missiles.ghost_fireball import GhostFireball
 from engine.entities.peaceful_entity import PeacefulEntity
 from engine.entities.peaceful_entity import PeacefulEntityType
 from engine.entities.peaceful_entity import Entity
@@ -221,19 +222,49 @@ class GameEngine:
 
     @staticmethod
     def _handle_level_change():
-        pass
+        player: Player = GameEngine._player
+        if player.x >= MainScreen.WINDOW_WIDTH - 32:
+            # TODO
+            # GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.)
+            player.x = 1
+            # GameEngine._hostile_entities = GameEngine._current_level.
+            # GameEngine._peaceful_entities =
+            # GameEngine._chests =
+            GameEngine._items.clear()
+            GameEngine._effects.clear()
+            GameEngine._prompts.clear()
+            GameEngine._missiles.clear()
+        # if
 
     @staticmethod
     def _handle_enter_dungeon():
-        pass
+        GameEngine._player.y = 0
 
     @staticmethod
-    def _start_missile_animation(enemy: HostileEntity):
-        pass
+    def start_attack_ghost(enemy: HostileEntity):
+        GameEngine._missiles.append(GhostFireball(enemy.x + 16, enemy.y + 16, GameEngine.get_facing_for_aim(enemy)))
 
     @staticmethod
-    def _handle_missile(enemy: HostileEntity):
-        pass
+    def get_facing_for_aim(self, enemy: HostileEntity):
+        player: Player = GameEngine._player
+        delta_x: int = player.x - enemy.x
+        delta_y: int = player.y - enemy.y
+        if abs(delta_x) <= abs(delta_y) and delta_y < 0:
+            return MapDirection.NORTH
+        elif abs(delta_x) <= abs(delta_y) and delta_y > 0:
+            return MapDirection.SOUTH
+        elif abs(delta_x) > abs(delta_y) and delta_y > 0:
+            return MapDirection.EAST
+        else:
+            return MapDirection.WEST
+
+    # @staticmethod
+    # def _start_missile_animation(enemy: HostileEntity):
+    #     pass
+    #
+    # @staticmethod
+    # def _handle_missile(enemy: HostileEntity):
+    #     pass
 
     @staticmethod
     def _distance(x1: int, y1: int, x2: int, y2: int) -> int:
