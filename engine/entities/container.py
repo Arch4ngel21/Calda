@@ -44,5 +44,9 @@ class Container(Entity):
         self._is_opened = value
 
     @property
-    def inventory(self):
+    def inventory(self) -> List[Collectible]:
         return self._inventory
+
+    @property
+    def container_type(self) -> ContainerType:
+        return self._container_type

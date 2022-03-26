@@ -1,27 +1,33 @@
+import math
 import sys
-
 import pygame
 from typing import List
 
 from engine.entities.hostile_entity import HostileEntity
 from engine.entities.peaceful_entity import PeacefulEntity
+from engine.entities.peaceful_entity import PeacefulEntityType
+from engine.entities.peaceful_entity import Entity
 from engine.entities.container import Container
+from engine.entities.container import ContainerType
 from engine.collectibles.collectible import Collectible
+from engine.collectibles.collectible import ItemType
 from engine.entities.missiles.missile import Missile
 from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.effects.screen_prompt import ScreenPrompt
+from engine.entities.effects.chest_open_effect import ChestOpenEffect
 from engine.world.map import Map
 from engine.world.level_map import LevelMap
 from utilities.map_direction import MapDirection
 from utilities.resource_manager import ResourceManager
 from engine.entities.player import Player
+from gui.main_screen import MainScreen
 
 
 class GameEngine:
     _initialized = False
 
     _keys = [] # tablica przycisków
-    _player: Player = None
+    _player: Player = Player(480, MainScreen.WINDOW_HEIGHT - 192, 10, 3)
     _hostile_entities: List[HostileEntity] = []
     _peaceful_entities: List[PeacefulEntity] = []
     _chests: List[Container] = []
@@ -46,25 +52,25 @@ class GameEngine:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
-                        start_player_attack_animation()
+                        GameEngine._start_player_attack_animation()
                     if event.key == pygame.K_w:
-                        handle_player_movement(MapDirection.NORTH)
+                        GameEngine._handle_player_movement(MapDirection.NORTH)
                     if event.key == pygame.K_a:
-                        handle_player_movement(MapDirection.WEST)
+                        GameEngine._handle_player_movement(MapDirection.WEST)
                     if event.key == pygame.K_s:
-                        handle_player_movement(MapDirection.SOUTH)
+                        GameEngine._handle_player_movement(MapDirection.SOUTH)
                     if event.key == pygame.K_d:
-                        handle_player_movement(MapDirection.EAST)
+                        GameEngine._handle_player_movement(MapDirection.EAST)
                     if event.key == pygame.K_e:
-                        handle_player_interaction()
+                        GameEngine._handle_player_interaction()
 
-            handle_enemies_movement()
-            handle_enemies_attack()
-            handle_peaceful_entities_actions()
-            handle_effects()
-            handle_missiles()
-            handle_enemies_drop()
-            handle_level_change()
+            GameEngine._handle_enemies_movement()
+            GameEngine._handle_enemies_attack()
+            GameEngine._handle_peaceful_entities_actions()
+            GameEngine._handle_effects()
+            GameEngine._handle_missiles()
+            GameEngine._handle_enemies_drop()
+            GameEngine._handle_level_change()
 
     @staticmethod
     def start_engine():
@@ -88,66 +94,97 @@ class GameEngine:
         for level in levels:
             GameEngine._world_map.add_level(level)
 
+    @staticmethod
+    def _handle_player_movement(direction: MapDirection):
+        player: Player = GameEngine._player
+        player.decrease_invincible_frame()
 
-def handle_player_movement(direction: MapDirection):
-    pass
+        player.facing = direction
+        if GameEngine._can_entity_move(player) and player.is_alive():
+            player.move()
 
+    @staticmethod
+    def _can_entity_move(entity: Entity) -> bool:
+        pass
 
-def handle_player_interaction():
-    pass
+    @staticmethod
+    def _handle_player_interaction():
+        player: Player = GameEngine._player
+        for chest in GameEngine._chests:
+            if not chest.is_opened and GameEngine._distance(player.x, player.y, chest.x, chest.y) <= 50:
+                chest.is_opened = True
+                for i, item in enumerate(chest.inventory):
+                    if item.item_type == ItemType.COIN:
+                        player.add_coin()
+                    if item.item_type == ItemType.HEALTH:
+                        player.add_health()
+                    """czy na pewno chcemy to robić w zależności od pozycji gracza, a nie skrzyni?"""
+                    GameEngine._effects.append(ChestOpenEffect(player.x + i*10, player.y - i*10 - 16, item))
+                if chest.container_type == ContainerType.STONE_SWORD and not player.has_sword:
+                    player.has_sword = True
 
-
-def handle_enemies_movement():
-    pass
-
-
-def handle_missiles():
-    pass
-
-
-def handle_enemies_attack():
-    pass
-
-
-def handle_peaceful_entities_actions():
-    pass
-
-
-def handle_effects():
-    pass
-
-
-def handle_pick_up_items():
-    pass
-
-
-def handle_player_attack():
-    pass
-
-
-def start_player_attack_animation():
-    pass
+        for peaceful_entity in GameEngine._peaceful_entities:
+            if GameEngine._distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
+                if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
+                    GameEngine._handle_enter_dungeon()
+            GameEngine._handle_pick_up_items()
 
 
-def handle_enemies_drop():
-    pass
+    @staticmethod
+    def _handle_enemies_movement():
+        pass
 
+    @staticmethod
+    def _handle_missiles():
+        pass
 
-def handle_level_change():
-    pass
+    @staticmethod
+    def _handle_enemies_attack():
+        pass
 
+    @staticmethod
+    def _handle_peaceful_entities_actions():
+        pass
 
-def handle_enter_dungeon():
-    pass
+    @staticmethod
+    def _handle_effects():
+        pass
 
+    @staticmethod
+    def _handle_pick_up_items():
+        pass
 
-def start_missile_animation(enemy: HostileEntity):
-    pass
+    @staticmethod
+    def _handle_player_attack():
+        pass
 
+    @staticmethod
+    def _start_player_attack_animation():
+        pass
 
-def handle_missile(enemy: HostileEntity):
-    pass
+    @staticmethod
+    def _handle_enemies_drop():
+        pass
 
+    @staticmethod
+    def _handle_level_change():
+        pass
+
+    @staticmethod
+    def _handle_enter_dungeon():
+        pass
+
+    @staticmethod
+    def _start_missile_animation(enemy: HostileEntity):
+        pass
+
+    @staticmethod
+    def _handle_missile(enemy: HostileEntity):
+        pass
+
+    @staticmethod
+    def _distance(x1: int, y1: int, x2: int, y2: int) -> int:
+        return int(math.sqrt((x2-x1)**2+(y2-y1)**2))
 
 
 

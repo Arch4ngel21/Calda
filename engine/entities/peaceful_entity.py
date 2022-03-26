@@ -27,3 +27,6 @@ class PeacefulEntity(Entity):
         if self._passive_effect_frame >= 200:
             self._passive_effect_frame = 0
 
+    @property
+    def peaceful_entity_type(self) -> PeacefulEntityType:
+        return self._peaceful_entity_type

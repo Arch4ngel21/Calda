@@ -26,3 +26,12 @@ class Player(Entity):
     def add_coin(self):
         self._coins += 1
 
+    @property
+    def has_sword(self) -> bool:
+        return self._has_sword
+
+    @has_sword.setter
+    def has_sword(self, value: bool):
+        if not isinstance(value, bool):
+            raise ValueError("has_sword must be a bool")
+        self._has_sword = value
