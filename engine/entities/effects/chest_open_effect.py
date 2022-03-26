@@ -8,7 +8,7 @@ class ChestOpenEffect(ScreenEffect):
         self._item_type: ItemType = item_type
 
      def move(self):
-         if self._y - 1 >= 0 and self._animation_frame % 4 == 0
+         if self._y - 1 >= 0 and self._animation_frame % 4 == 0:
              self._y -= 1
 
     @property
