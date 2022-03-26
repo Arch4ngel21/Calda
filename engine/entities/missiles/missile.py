@@ -33,11 +33,22 @@ class Missile:
         if self._facing == MapDirection.WEST and self._x - self._velocity >= 0:
             self._x -= self._velocity
 
-    """add more getters/setters if needed"""
     @property
     def x(self) -> int:
         return self._x
 
     @x.setter
-    def x(self, value):
+    def x(self, value: int):
+        if not isinstance(value, int):
+            raise ValueError("x must be an int")
         self._x = value
+
+    @property
+    def y(self) -> int:
+        return self._y
+
+    @y.setter
+    def y(self, value: int):
+        if not isinstance(value, int):
+            raise ValueError("y must be an int")
+        self._y = value

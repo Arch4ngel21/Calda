@@ -32,4 +32,36 @@ class Entity:
     def damage(self, damage_amount: int):
         self._health -= damage_amount
 
+    def decrease_invincible_frame(self):
+        pass
+
+    @property
+    def facing(self):
+        return self._facing
+
+    @facing.setter
+    def facing(self, direction: MapDirection):
+        if not isinstance(direction, MapDirection):
+            raise ValueError("it must be MapDirection")
+        self._facing = direction
+
+    @property
+    def x(self) -> int:
+        return self._x
+
+    @x.setter
+    def x(self, value: int):
+        if not isinstance(value, int):
+            raise ValueError("x must be an int")
+        self._x = value
+
+    @property
+    def y(self) -> int:
+        return self._y
+
+    @y.setter
+    def y(self, value: int):
+        if not isinstance(value, int):
+            raise ValueError("y must be an int")
+        self._y = value
 
