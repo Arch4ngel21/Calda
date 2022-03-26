@@ -24,9 +24,25 @@ class Container(Entity):
     def include_item(self, item: Collectible):
         if len(self._inventory) >= self._capacity:
             return
+        if not isinstance(item, Collectible):
+            raise ValueError("item must be a Collectible")
         self._inventory.append(item)
 
     def increase_animation_frame(self):
         self._animation_frame += 1
         if self._animation_frame >= 40:
             self._animation_frame = 0
+
+    @property
+    def is_opened(self):
+        return self._is_opened
+
+    @is_opened.setter
+    def is_opened(self, value: bool):
+        if not isinstance(value, bool):
+            raise ValueError("is_opened must be boolean")
+        self._is_opened = value
+
+    @property
+    def inventory(self):
+        return self._inventory
