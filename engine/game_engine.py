@@ -1,4 +1,5 @@
 import math
+from random import randint
 import sys
 import pygame
 from typing import List
@@ -206,7 +207,17 @@ class GameEngine:
 
     @staticmethod
     def _handle_enemies_drop():
-        pass
+        to_remove = []
+        for enemy in GameEngine._hostile_entities:
+            if not enemy.is_alive():
+                rand = randint(1, 5)
+                if rand == 1:
+                    GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.COIN))
+                if rand == 2:
+                    GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.HEALTH))
+                to_remove.append(enemy)
+        for enemy in to_remove:
+            GameEngine._hostile_entities.remove(enemy)
 
     @staticmethod
     def _handle_level_change():
