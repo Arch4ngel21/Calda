@@ -141,7 +141,19 @@ class GameEngine:
 
     @staticmethod
     def _handle_missiles():
-        pass
+        to_remove = []
+        for missile in GameEngine._missiles:
+            missile.increase_animation_frame()
+            if missile.should_animation_end():
+                to_remove.append(missile)
+            # TODO kolizje
+            missile.move()
+
+        for missile in to_remove:
+            GameEngine._missiles.remove(missile)
+
+
+
 
     @staticmethod
     def _handle_enemies_attack():

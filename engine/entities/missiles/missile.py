@@ -17,6 +17,9 @@ class Missile:
         self._damage: int
         self._bound_box: pygame.Rect
 
+    def increase_animation_frame(self):
+        pass
+
     def should_animation_end(self) -> bool:
         return abs(self._x - self._start_x) >= self._lifespan*32 or abs(self._y-self._start_y) >= self._lifespan*32 or\
                self._x + self._velocity >= MainScreen.WINDOW_WIDTH or self._x-self._velocity < 0 or\
