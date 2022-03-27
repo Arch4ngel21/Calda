@@ -27,9 +27,9 @@ class Player(Entity):
     def add_coin(self):
         self._coins += 1
 
-    def decrease_attack_frame(self):
-        self._attack_frame -= 1
-        if self._attack_frame < 0:
+    def increase_attack_frame(self):
+        self._attack_frame += 1
+        if self._attack_frame > 30:
             self._attack_frame = 0
 
     @property

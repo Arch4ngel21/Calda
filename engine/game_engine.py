@@ -100,7 +100,7 @@ class GameEngine:
     @staticmethod
     def _handle_player_movement(direction: MapDirection):
         player: Player = GameEngine._player
-        player.decrease_invincible_frame()
+        player.increase_invincible_frame()
 
         player.facing = direction
         if GameEngine._can_entity_move(player) and player.is_alive():
@@ -158,7 +158,7 @@ class GameEngine:
     @staticmethod
     def _handle_enemies_attack():
         for enemy in GameEngine._hostile_entities:
-            enemy.decrease_attack_frame()
+            enemy.increase_attack_frame()
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
             # TODO kolizje
@@ -198,13 +198,13 @@ class GameEngine:
         player: Player = GameEngine._player
         if player.attack_frame == 0:
             return
-        player.decrease_attack_frame()
+        player.increase_attack_frame()
         # TODO kolizje
 
     @staticmethod
     def _start_player_attack_animation():
         if GameEngine._player.attack_frame == 0 and GameEngine._player.has_sword:
-            GameEngine._player.attack_frame = 30
+            GameEngine._player.attack_frame = 1
 
     @staticmethod
     def _handle_enemies_drop():

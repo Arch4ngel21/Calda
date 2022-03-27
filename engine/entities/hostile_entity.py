@@ -36,8 +36,8 @@ class HostileEntity(Entity):
         if self._steps >= 500:
             self._steps = 0
 
-    def decrease_attack_frame(self):
-        pass #po co to
+    def increase_attack_frame(self):
+        pass
 
     def follow_player(self):
         # TODO

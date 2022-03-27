@@ -32,7 +32,7 @@ class Entity:
     def damage(self, damage_amount: int):
         self._health -= damage_amount
 
-    def decrease_invincible_frame(self):
+    def increase_invincible_frame(self):
         pass
 
     @property
