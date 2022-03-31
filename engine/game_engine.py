@@ -211,6 +211,8 @@ class GameEngine:
             print("_can_entity_move - given Entity has illegal MapDirection value")
             raise WrongMapDirection
 
+        return True
+
     @staticmethod
     def _handle_player_interaction():
         player: Player = GameEngine._player
