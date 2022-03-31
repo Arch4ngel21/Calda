@@ -186,28 +186,35 @@ class LevelMap:
                 else:
                     self._level[y][x] = Block(x, y, "error_block", False)
 
-    def get_world_map_x(self) -> int:
+    @property
+    def world_map_x(self) -> int:
         return self._world_map_x
 
-    def get_world_map_y(self) -> int:
+    @property
+    def world_map_y(self) -> int:
         return self._world_map_y
 
     def get_block(self, x: int, y: int) -> Optional[Block]:
         return self._level[y][x]
 
-    def get_level_map_width(self) -> int:
+    @property
+    def level_map_width(self) -> int:
         return self._level_map_width
 
-    def get_level_map_height(self) -> int:
+    @property
+    def level_map_height(self) -> int:
         return self._level_map_height
 
-    def get_enemies_list(self):
+    @property
+    def enemies_list(self):
         return self._enemies_list
 
-    def get_friendly_entity_list(self):
+    @property
+    def friendly_entity_list(self):
         return self._friendly_entity_list
 
-    def get_chests(self):
+    @property
+    def chests(self):
         return self._chests
 
     def add_hostile_entity(self, entity: HostileEntity):
@@ -251,15 +258,15 @@ class LevelMap:
                 check_square[0][2] = True
             if y-1 >= 0 and image.getpixel((x, y-1)) in accepted_values:
                 check_square[1][2] = True
-            if x+1 < level_map.get_world_map_x() and y-1 >= 0 and image.getpixel((x+1, y-1)) in accepted_values:
+            if x+1 < level_map.world_map_x and y-1 >= 0 and image.getpixel((x+1, y-1)) in accepted_values:
                 check_square[2][2] = True
-            if x+1 < level_map.get_world_map_x() and image.getpixel((x+1, y)) in accepted_values:
+            if x+1 < level_map.world_map_x and image.getpixel((x+1, y)) in accepted_values:
                 check_square[2][1] = True
-            if x+1 < level_map.get_world_map_x() and y+1 < level_map.get_world_map_y() and image.getpixel((x+1, y+1)) in accepted_values:
+            if x+1 < level_map.world_map_x and y+1 < level_map.world_map_y and image.getpixel((x+1, y+1)) in accepted_values:
                 check_square[2][0] = True
-            if y+1 < level_map.get_world_map_y() and image.getpixel((x, y+1)) in accepted_values:
+            if y+1 < level_map.world_map_y and image.getpixel((x, y+1)) in accepted_values:
                 check_square[1][0] = True
-            if x-1 >= 0 and y+1 < level_map.get_world_map_y() and image.getpixel((x-1, y+1)) in accepted_values:
+            if x-1 >= 0 and y+1 < level_map.world_map_y and image.getpixel((x-1, y+1)) in accepted_values:
                 check_square[0][0] = True
 
             if check_square[0][1] and check_square[0][2] and check_square[1][2]:
@@ -310,15 +317,15 @@ class LevelMap:
                 check_square[0][2] = True
             if y-1 >= 0 and image.getpixel((x, y-1)) == water_rgb_value:
                 check_square[1][2] = True
-            if x+1 < level_map.get_world_map_x() and y-1 >= 0 and image.getpixel((x+1, y-1)) == water_rgb_value:
+            if x+1 < level_map.world_map_x and y-1 >= 0 and image.getpixel((x+1, y-1)) == water_rgb_value:
                 check_square[2][2] = True
-            if x+1 < level_map.get_world_map_x() and image.getpixel((x+1, y)) == water_rgb_value:
+            if x+1 < level_map.world_map_x and image.getpixel((x+1, y)) == water_rgb_value:
                 check_square[2][1] = True
-            if x+1 < level_map.get_world_map_x() and y+1 < level_map.get_world_map_y() and image.getpixel((x+1, y+1)) == water_rgb_value:
+            if x+1 < level_map.world_map_x and y+1 < level_map.world_map_y and image.getpixel((x+1, y+1)) == water_rgb_value:
                 check_square[2][0] = True
-            if y+1 < level_map.get_world_map_y() and image.getpixel((x, y+1)) == water_rgb_value:
+            if y+1 < level_map.world_map_y and image.getpixel((x, y+1)) == water_rgb_value:
                 check_square[1][0] = True
-            if x-1 >= 0 and y+1 < level_map.get_world_map_y() and image.getpixel((x-1, y+1)) == water_rgb_value:
+            if x-1 >= 0 and y+1 < level_map.world_map_y and image.getpixel((x-1, y+1)) == water_rgb_value:
                 check_square[0][0] = True
 
             if check_square[1][2] and check_square[2][2] and check_square[2][1]:

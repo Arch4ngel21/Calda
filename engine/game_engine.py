@@ -40,8 +40,10 @@ class GameEngine:
     _prompts: List[ScreenPrompt] = []
 
     _world_map: Map = None
-    _current_level = None
-    _is_running = True
+    _current_level: LevelMap = None
+    _is_running = False
+
+    BLOCK_SIZE = 64
 
     @staticmethod
     def run():
@@ -80,6 +82,7 @@ class GameEngine:
         # TODO
         GameEngine._player = Player(480, 900, 10, 2)
         GameEngine.generate_levels()
+        GameEngine._is_running = True
 
     @staticmethod
     def generate_levels():
@@ -108,7 +111,59 @@ class GameEngine:
 
     @staticmethod
     def _can_entity_move(entity: Entity) -> bool:
-        pass
+
+        # Dla wyszstkich kierunkow tak samo - w odp. ifie potem sie koryguje, jesli bedzie trzeba
+        if entity.x % GameEngine.BLOCK_SIZE == 0:
+            block_x = entity.x // GameEngine.BLOCK_SIZE
+        else:
+            block_x = (entity.x - (entity.x % GameEngine.BLOCK_SIZE)) // GameEngine.BLOCK_SIZE
+
+        if entity.y % GameEngine.BLOCK_SIZE == 0:
+            block_y = entity.y // GameEngine.BLOCK_SIZE
+        else:
+            block_y = (entity.y - (entity.y % GameEngine.BLOCK_SIZE)) // GameEngine.BLOCK_SIZE
+
+        if entity.facing == MapDirection.NORTH:
+            # normalizacja do lewego gornego rogu
+            if entity.y == block_y * GameEngine.BLOCK_SIZE:
+                if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
+                    return False
+
+                if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+                    return False
+
+        elif entity.facing == MapDirection.SOUTH:
+            # normalizacja do lewego dolnego rogu
+            if entity.y % GameEngine.BLOCK_SIZE != 0:
+                block_y += 1
+
+            if entity.y == block_y * GameEngine.BLOCK_SIZE:
+                if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
+                    return False
+                if entity.x % GameEngine.BLOCK_SIZE == 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                    return False
+
+        elif entity.facing == MapDirection.EAST:
+            # normalizacja do prawego gornego rogu
+            if entity.x % GameEngine.BLOCK_SIZE != 0:
+                block_x += 1
+
+            if entity.x == block_x * GameEngine.BLOCK_SIZE:
+                if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
+                    return False
+                if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                    return False
+
+        elif entity.facing == MapDirection.WEST:
+            # normalizacja do lewego gornego rogu
+            if entity.x == block_x * GameEngine.BLOCK_SIZE:
+                if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
+                    return False
+                if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+                    return False
+
+        return True
+
 
     @staticmethod
     def _handle_player_interaction():
@@ -223,21 +278,61 @@ class GameEngine:
     @staticmethod
     def _handle_level_change():
         player: Player = GameEngine._player
+
         if player.x >= MainScreen.WINDOW_WIDTH - 32:
-            # TODO
-            # GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.)
+            GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x + 1,
+                                                                        GameEngine._current_level.world_map_y)
             player.x = 1
-            # GameEngine._hostile_entities = GameEngine._current_level.
-            # GameEngine._peaceful_entities =
-            # GameEngine._chests =
+            GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+            GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+            GameEngine._chests = GameEngine._current_level.chests
             GameEngine._items.clear()
             GameEngine._effects.clear()
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
-        # if
+
+        elif player.x <= 0:
+            GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x - 1,
+                                                                        GameEngine._current_level.world_map_y)
+            player.x = MainScreen.WINDOW_WIDTH - 32
+            GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+            GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+            GameEngine._chests = GameEngine._current_level.chests
+            GameEngine._items.clear()
+            GameEngine._effects.clear()
+            GameEngine._prompts.clear()
+            GameEngine._missiles.clear()
+
+        elif player.y >= MainScreen.WINDOW_HEIGHT - 32:
+            GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
+                                                                        GameEngine._current_level.world_map_y - 1)
+            player.y = 1
+            GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+            GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+            GameEngine._chests = GameEngine._current_level.chests
+            GameEngine._items.clear()
+            GameEngine._effects.clear()
+            GameEngine._prompts.clear()
+            GameEngine._missiles.clear()
+
+        elif player.y <= 0:
+            GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
+                                                                        GameEngine._current_level.world_map_y + 1)
+            player.y = MainScreen.WINDOW_HEIGHT - 32
+            GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+            GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+            GameEngine._chests = GameEngine._current_level.chests
+            GameEngine._items.clear()
+            GameEngine._effects.clear()
+            GameEngine._prompts.clear()
+            GameEngine._missiles.clear()
+
 
     @staticmethod
     def _handle_enter_dungeon():
+        # TODO - brzydkie rozwiazanie tego problemu
+        #  (gracz pojawia sie na granicy mapy, przez co teleportuje go na kolejny poziom)
+        #  dziala, ale mozna to poprawic
         GameEngine._player.y = 0
 
     @staticmethod
@@ -245,7 +340,7 @@ class GameEngine:
         GameEngine._missiles.append(GhostFireball(enemy.x + 16, enemy.y + 16, GameEngine.get_facing_for_aim(enemy)))
 
     @staticmethod
-    def get_facing_for_aim(self, enemy: HostileEntity):
+    def get_facing_for_aim(enemy: HostileEntity):
         player: Player = GameEngine._player
         delta_x: int = player.x - enemy.x
         delta_y: int = player.y - enemy.y
