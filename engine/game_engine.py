@@ -22,6 +22,7 @@ from engine.world.map import Map
 from engine.world.level_map import LevelMap
 from utilities.map_direction import MapDirection
 from utilities.resource_manager import ResourceManager
+from utilities.exceptions import WrongMapDirection
 from engine.entities.player import Player
 from gui.main_screen import MainScreen
 
@@ -164,6 +165,51 @@ class GameEngine:
 
         return True
 
+    # TODO - funkcja do przetestowania czy dziala poprawnie
+    #  Robi to samo, co 1 wersja, tylko prosciej.
+    @staticmethod
+    def _can_entity_move_v2(entity: Entity) -> bool:
+        # NORTH - lewy gorny
+        # SOUTH - lewy dolny
+        # EAST - prawy gorny
+        # WEST - lewy gorny
+
+        block_x = entity.x // GameEngine.BLOCK_SIZE
+        block_y = entity.y // GameEngine.BLOCK_SIZE
+
+        if entity.facing == MapDirection.SOUTH:
+            block_y += 1
+
+        if entity.facing == MapDirection.EAST:
+            block_x += 1
+
+        if entity.facing == MapDirection.NORTH and entity.y % GameEngine.BLOCK_SIZE == 0:
+            if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
+                return False
+            if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+                return False
+
+        elif entity.facing == MapDirection.SOUTH and entity.y % GameEngine.BLOCK_SIZE == 0:
+            if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
+                return False
+            if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                return False
+
+        elif entity.facing == MapDirection.EAST and entity.x % GameEngine.BLOCK_SIZE == 0:
+            if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
+                return False
+            if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                return False
+
+        elif entity.facing == MapDirection.WEST and entity.x % GameEngine.BLOCK_SIZE == 0:
+            if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
+                return False
+            if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+                return False
+
+        else:
+            print("_can_entity_move - given Entity has illegal MapDirection value")
+            raise WrongMapDirection
 
     @staticmethod
     def _handle_player_interaction():

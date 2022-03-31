@@ -1,6 +1,7 @@
 import pygame
 
 from utilities.map_direction import MapDirection
+from typing import Optional
 
 
 class Entity:
@@ -15,8 +16,8 @@ class Entity:
         self._facing: MapDirection = MapDirection.NORTH
         self._is_following_player: bool = False
         self._is_damaged = False
-        self._hit_box: pygame.Rect
-        self._bounding_box: pygame.Rect
+        self._hit_box: Optional[pygame.Rect] = None
+        self._bounding_box: Optional[pygame.Rect] = None
             
     def heal(self, health_amount: int):
         self._health += health_amount
@@ -64,4 +65,9 @@ class Entity:
         if not isinstance(value, int):
             raise ValueError("y must be an int")
         self._y = value
+
+    @property
+    def bounding_box(self):
+        return self._bounding_box
+
 
