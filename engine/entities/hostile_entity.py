@@ -3,6 +3,8 @@ import pygame
 from random import randint
 
 from engine.entities.entity import Entity
+from engine.entities.player import Player
+from engine.game_engine import GameEngine
 from utilities.map_direction import MapDirection
 
 
@@ -18,6 +20,7 @@ class HostileEntity(Entity):
         self._steps = 0
         self._attack_frame: int = 0
         self._is_attacking: bool = False
+        self._is_following_player: bool = False
         self._entity_type: HostileEntityType = entity_type
         self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOX_SIZE, self.BOX_SIZE)
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.BOX_SIZE, self.BOX_SIZE)
@@ -57,9 +60,37 @@ class HostileEntity(Entity):
     def increase_attack_frame(self):
         pass
 
-    def follow_player(self):
-        # TODO
-        pass
+    def follow_player(self, player: Player):
+        distance_to_follow: int
+        if self._entity_type == HostileEntityType.SLIME:
+            distance_to_follow = 256
+        elif self._entity_type == HostileEntityType.GHOST:
+            distance_to_follow = 320
+        else:
+            distance_to_follow = 256
+        if GameEngine.distance(player.x, player.y, self._x, self._y) > distance_to_follow:
+            self._stop_following()
+            return
+
+        self._start_following()
+
+        delta_x = player.x - self._x
+        delta_y = player.y - self._y
+
+        if abs(delta_x) <= abs(delta_y) and delta_y <= 0:
+            self._facing = MapDirection.NORTH
+        if abs(delta_x) <= abs(delta_y) and delta_y > 0:
+            self._facing = MapDirection.SOUTH
+        if abs(delta_x) > abs(delta_y) and delta_y <= 0:
+            self._facing = MapDirection.WEST
+        if abs(delta_x) > abs(delta_y) and delta_y > 0:
+            self._facing = MapDirection.EAST
+
+    def _stop_following(self):
+        self._is_following_player = False
+
+    def _start_following(self):
+        self._is_following_player = True
 
     @staticmethod
     def new_direction() -> MapDirection:

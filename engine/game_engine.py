@@ -217,7 +217,7 @@ class GameEngine:
     def _handle_player_interaction():
         player: Player = GameEngine._player
         for chest in GameEngine._chests:
-            if not chest.is_opened and GameEngine._distance(player.x, player.y, chest.x, chest.y) <= 50:
+            if not chest.is_opened and GameEngine.distance(player.x, player.y, chest.x, chest.y) <= 50:
                 chest.is_opened = True
                 for i, item in enumerate(chest.inventory):
                     if item.item_type == ItemType.COIN:
@@ -230,7 +230,7 @@ class GameEngine:
                     player.has_sword = True
 
         for peaceful_entity in GameEngine._peaceful_entities:
-            if GameEngine._distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
+            if GameEngine.distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
                 if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
                     GameEngine._handle_enter_dungeon()
             GameEngine._handle_pick_up_items()
@@ -276,7 +276,7 @@ class GameEngine:
         for entity in GameEngine._peaceful_entities:
             if entity.peaceful_entity_type == PeacefulEntityType.TREE_OF_HEALTH:
                 entity.increase_passive_effect_frame()
-                if GameEngine._distance(player.x, player.y, entity.x, entity.y) <= 128 and entity.passive_effect_frame == 100:
+                if GameEngine.distance(player.x, player.y, entity.x, entity.y) <= 128 and entity.passive_effect_frame == 100:
                     player.heal(2)
 
     @staticmethod
@@ -410,7 +410,7 @@ class GameEngine:
     #     pass
 
     @staticmethod
-    def _distance(x1: int, y1: int, x2: int, y2: int) -> int:
+    def distance(x1: int, y1: int, x2: int, y2: int) -> int:
         return int(math.sqrt((x2-x1)**2+(y2-y1)**2))
 
 

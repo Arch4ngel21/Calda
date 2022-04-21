@@ -14,7 +14,6 @@ class Entity:
         self._animation_frame = 0
         self._invincible_frame = 0
         self._facing: MapDirection = MapDirection.NORTH
-        self._is_following_player: bool = False
         self._is_damaged = False
         self._hit_box: Optional[pygame.Rect] = None
         self._bounding_box: Optional[pygame.Rect] = None
