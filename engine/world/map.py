@@ -18,4 +18,3 @@ class Map:
             raise EmptyLevelMapException
 
         return self._world_map[x][y]
-

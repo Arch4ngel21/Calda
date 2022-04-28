@@ -4,9 +4,9 @@ from enum import Enum
 
 class MapDirection(Enum):
     NORTH = 0
-    EAST = 1
+    WEST = 1
     SOUTH = 2
-    WEST = 3
+    EAST = 3
 
     @staticmethod
     def opposite(direction: MapDirection) -> MapDirection:

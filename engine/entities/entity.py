@@ -4,8 +4,9 @@ from utilities.map_direction import MapDirection
 from typing import Optional
 
 
-class Entity:
+class Entity(pygame.sprite.Sprite):
     def __init__(self, x: int, y: int, health: int, damage: int):
+        super().__init__()
         self._x: int = x
         self._y: int = y
         self._health: int = health
@@ -17,7 +18,10 @@ class Entity:
         self._is_damaged = False
         self._hit_box: Optional[pygame.Rect] = None
         self._bounding_box: Optional[pygame.Rect] = None
-            
+
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self.image, self.rect)
+
     def heal(self, health_amount: int):
         self._health += health_amount
         if self._health > self._max_health:

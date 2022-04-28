@@ -1,10 +1,10 @@
 from enum import Enum
 import pygame
 from random import randint
+import math
 
 from engine.entities.entity import Entity
 from engine.entities.player import Player
-from engine.game_engine import GameEngine
 from utilities.map_direction import MapDirection
 
 
@@ -15,6 +15,7 @@ class HostileEntityType(Enum):
 
 class HostileEntity(Entity):
     BOX_SIZE: int = 32
+
     def __init__(self, x: int, y: int, health: int, damage: int, entity_type: HostileEntityType):
         super().__init__(x, y, health, damage)
         self._steps = 0
@@ -68,7 +69,7 @@ class HostileEntity(Entity):
             distance_to_follow = 320
         else:
             distance_to_follow = 256
-        if GameEngine.distance(player.x, player.y, self._x, self._y) > distance_to_follow:
+        if math.dist((player.x, player.y), (self._x, self._y)) > distance_to_follow:
             self._stop_following()
             return
 

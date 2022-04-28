@@ -5,3 +5,7 @@ class EmptyLevelMapException(Exception):
 
 class WrongMapDirection(Exception):
     pass
+
+
+class KeyCodeError(Exception):
+    pass

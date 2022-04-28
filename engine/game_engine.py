@@ -22,7 +22,8 @@ from engine.world.map import Map
 from engine.world.level_map import LevelMap
 from utilities.map_direction import MapDirection
 from utilities.resource_manager import ResourceManager
-from utilities.exceptions import WrongMapDirection
+from utilities.exceptions import WrongMapDirection, KeyCodeError
+from utilities.settings import Settings
 from engine.entities.player import Player
 from gui.main_screen import MainScreen
 
@@ -30,8 +31,8 @@ from gui.main_screen import MainScreen
 class GameEngine:
     _initialized = False
 
-    _keys = [] # tablica przycisków
-    _player: Player = Player(480, MainScreen.WINDOW_HEIGHT - 192, 10, 3)
+    _keys = [False for _ in range(123)] # tablica przycisków
+    _player: Player = None
     _hostile_entities: List[HostileEntity] = []
     _peaceful_entities: List[PeacefulEntity] = []
     _chests: List[Container] = []
@@ -42,48 +43,54 @@ class GameEngine:
 
     _world_map: Map = None
     _current_level: LevelMap = None
+    _clock = None
     _is_running = False
-
-    BLOCK_SIZE = 64
 
     @staticmethod
     def run():
-        clock = pygame.time.Clock()
+        GameEngine.start_engine()
+        MainScreen.init_screen()
+        _clock = pygame.time.Clock()
+
         while True:
-            clock.tick(30)
+            _clock.tick(120)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
+                GameEngine._player.is_walking = False
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_q:
-                        GameEngine._start_player_attack_animation()
-                    if event.key == pygame.K_w:
-                        GameEngine._handle_player_movement(MapDirection.NORTH)
-                    if event.key == pygame.K_a:
-                        GameEngine._handle_player_movement(MapDirection.WEST)
-                    if event.key == pygame.K_s:
-                        GameEngine._handle_player_movement(MapDirection.SOUTH)
-                    if event.key == pygame.K_d:
-                        GameEngine._handle_player_movement(MapDirection.EAST)
-                    if event.key == pygame.K_e:
-                        GameEngine._handle_player_interaction()
+                    GameEngine.press_key(event.key)
+                elif event.type == pygame.KEYUP:
+                    GameEngine.release_key(event.key)
 
+            GameEngine._handle_level_change()
+            GameEngine._handle_key_inputs()
             GameEngine._handle_enemies_movement()
             GameEngine._handle_enemies_attack()
             GameEngine._handle_peaceful_entities_actions()
             GameEngine._handle_effects()
             GameEngine._handle_missiles()
             GameEngine._handle_enemies_drop()
-            GameEngine._handle_level_change()
+            GameEngine._render_screen()
 
     @staticmethod
     def start_engine():
         # TODO
-        GameEngine._player = Player(480, 900, 10, 2)
+        GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 10, 3)
+        GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
+        GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
+        GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._is_running = True
+
+    @staticmethod
+    def _render_screen():
+        MainScreen.render_map(GameEngine._current_level)
+        MainScreen.render_player(GameEngine._player)
+        MainScreen.render_debug(GameEngine._player)
+        pygame.display.flip()
 
     @staticmethod
     def generate_levels():
@@ -110,57 +117,57 @@ class GameEngine:
         if GameEngine._can_entity_move(player) and player.is_alive():
             player.move()
 
+    # TODO - jak v2 będzie działać, to tą usuniemy (chyba, że nie będzie xd)
     @staticmethod
     def _can_entity_move(entity: Entity) -> bool:
 
         # Dla wyszstkich kierunkow tak samo - w odp. ifie potem sie koryguje, jesli bedzie trzeba
-        if entity.x % GameEngine.BLOCK_SIZE == 0:
-            block_x = entity.x // GameEngine.BLOCK_SIZE
+        if entity.x % Settings.BLOCK_SIZE == 0:
+            block_x = entity.x // Settings.BLOCK_SIZE
         else:
-            block_x = (entity.x - (entity.x % GameEngine.BLOCK_SIZE)) // GameEngine.BLOCK_SIZE
+            block_x = (entity.x - (entity.x % Settings.BLOCK_SIZE)) // Settings.BLOCK_SIZE
 
-        if entity.y % GameEngine.BLOCK_SIZE == 0:
-            block_y = entity.y // GameEngine.BLOCK_SIZE
+        if entity.y % Settings.BLOCK_SIZE == 0:
+            block_y = entity.y // Settings.BLOCK_SIZE
         else:
-            block_y = (entity.y - (entity.y % GameEngine.BLOCK_SIZE)) // GameEngine.BLOCK_SIZE
+            block_y = (entity.y - (entity.y % Settings.BLOCK_SIZE)) // Settings.BLOCK_SIZE
 
         if entity.facing == MapDirection.NORTH:
             # normalizacja do lewego gornego rogu
-            if entity.y == block_y * GameEngine.BLOCK_SIZE:
+            if entity.y == block_y * Settings.BLOCK_SIZE:
                 if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
                     return False
-
-                if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.SOUTH:
             # normalizacja do lewego dolnego rogu
-            if entity.y % GameEngine.BLOCK_SIZE != 0:
+            if entity.y % Settings.BLOCK_SIZE != 0:
                 block_y += 1
 
-            if entity.y == block_y * GameEngine.BLOCK_SIZE:
+            if entity.y == block_y * Settings.BLOCK_SIZE:
                 if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
                     return False
-                if entity.x % GameEngine.BLOCK_SIZE == 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.EAST:
             # normalizacja do prawego gornego rogu
-            if entity.x % GameEngine.BLOCK_SIZE != 0:
+            if entity.x % Settings.BLOCK_SIZE != 0:
                 block_x += 1
 
-            if entity.x == block_x * GameEngine.BLOCK_SIZE:
+            if entity.x == block_x * Settings.BLOCK_SIZE:
                 if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
                     return False
-                if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.WEST:
             # normalizacja do lewego gornego rogu
-            if entity.x == block_x * GameEngine.BLOCK_SIZE:
+            if entity.x == block_x * Settings.BLOCK_SIZE:
                 if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
                     return False
-                if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
                     return False
 
         return True
@@ -174,8 +181,8 @@ class GameEngine:
         # EAST - prawy gorny
         # WEST - lewy gorny
 
-        block_x = entity.x // GameEngine.BLOCK_SIZE
-        block_y = entity.y // GameEngine.BLOCK_SIZE
+        block_x = entity.x // Settings.BLOCK_SIZE
+        block_y = entity.y // Settings.BLOCK_SIZE
 
         if entity.facing == MapDirection.SOUTH:
             block_y += 1
@@ -183,35 +190,53 @@ class GameEngine:
         if entity.facing == MapDirection.EAST:
             block_x += 1
 
-        if entity.facing == MapDirection.NORTH and entity.y % GameEngine.BLOCK_SIZE == 0:
+        if entity.facing == MapDirection.NORTH and entity.y % Settings.BLOCK_SIZE == 0:
             if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
                 return False
-            if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
                 return False
 
-        elif entity.facing == MapDirection.SOUTH and entity.y % GameEngine.BLOCK_SIZE == 0:
+        elif entity.facing == MapDirection.SOUTH and entity.y % Settings.BLOCK_SIZE == 0:
             if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
                 return False
-            if entity.x % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
                 return False
 
-        elif entity.facing == MapDirection.EAST and entity.x % GameEngine.BLOCK_SIZE == 0:
+        elif entity.facing == MapDirection.EAST and entity.x % Settings.BLOCK_SIZE == 0:
             if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
                 return False
-            if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
                 return False
 
-        elif entity.facing == MapDirection.WEST and entity.x % GameEngine.BLOCK_SIZE == 0:
+        elif entity.facing == MapDirection.WEST and entity.x % Settings.BLOCK_SIZE == 0:
             if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
                 return False
-            if entity.y % GameEngine.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
                 return False
 
-        else:
-            print("_can_entity_move - given Entity has illegal MapDirection value")
+        elif not isinstance(entity.facing, MapDirection):
+            print(f"_can_entity_move - given Entity has illegal MapDirection value: {entity.facing}")
             raise WrongMapDirection
 
         return True
+
+    @staticmethod
+    def _handle_key_inputs():
+
+        if GameEngine.is_pressed(pygame.K_q):
+            GameEngine._start_player_attack_animation()
+        if GameEngine.is_pressed(pygame.K_w):
+            GameEngine._handle_player_movement(MapDirection.NORTH)
+        if GameEngine.is_pressed(pygame.K_a):
+            GameEngine._handle_player_movement(MapDirection.WEST)
+        if GameEngine.is_pressed(pygame.K_s):
+            GameEngine._handle_player_movement(MapDirection.SOUTH)
+        if GameEngine.is_pressed(pygame.K_d):
+            GameEngine._handle_player_movement(MapDirection.EAST)
+        if GameEngine.is_pressed(pygame.K_e):
+            GameEngine._handle_player_interaction()
+
+
 
     @staticmethod
     def _handle_player_interaction():
@@ -225,7 +250,7 @@ class GameEngine:
                     if item.item_type == ItemType.HEALTH:
                         player.add_health()
                     """czy na pewno chcemy to robić w zależności od pozycji gracza, a nie skrzyni?"""
-                    GameEngine._effects.append(ChestOpenEffect(player.x + i*10, player.y - i*10 - 16, item))
+                    GameEngine._effects.append(ChestOpenEffect(player.x + i*10, player.y - i*10 - 16, item.item_type))
                 if chest.container_type == ContainerType.STONE_SWORD and not player.has_sword:
                     player.has_sword = True
 
@@ -327,7 +352,7 @@ class GameEngine:
     def _handle_level_change():
         player: Player = GameEngine._player
 
-        if player.x >= MainScreen.WINDOW_WIDTH - 32:
+        if player.x >= Settings.GAME_WINDOW_WIDTH - player.rect.width:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x + 1,
                                                                         GameEngine._current_level.world_map_y)
             player.x = 1
@@ -342,7 +367,7 @@ class GameEngine:
         elif player.x <= 0:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x - 1,
                                                                         GameEngine._current_level.world_map_y)
-            player.x = MainScreen.WINDOW_WIDTH - 32
+            player.x = Settings.GAME_WINDOW_WIDTH - player.rect.width
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
@@ -351,7 +376,7 @@ class GameEngine:
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
-        elif player.y >= MainScreen.WINDOW_HEIGHT - 32:
+        elif player.y >= Settings.GAME_WINDOW_HEIGHT - player.rect.height:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
                                                                         GameEngine._current_level.world_map_y - 1)
             player.y = 1
@@ -366,7 +391,7 @@ class GameEngine:
         elif player.y <= 0:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
                                                                         GameEngine._current_level.world_map_y + 1)
-            player.y = MainScreen.WINDOW_HEIGHT - 32
+            player.y = Settings.GAME_WINDOW_HEIGHT - player.rect.height
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
@@ -411,14 +436,21 @@ class GameEngine:
 
     @staticmethod
     def distance(x1: int, y1: int, x2: int, y2: int) -> int:
-        return int(math.sqrt((x2-x1)**2+(y2-y1)**2))
+        return int(math.sqrt((x2 - x1)**2 + (y2 - y1)**2))
 
+    @staticmethod
+    def press_key(key_code: int):
+        GameEngine._keys[key_code] = True
 
+    @staticmethod
+    def release_key(key_code: int):
+        GameEngine._keys[key_code] = False
 
-
-
-
-
+    @staticmethod
+    def is_pressed(key_code: int):
+        if key_code > 122:
+            raise KeyCodeError
+        return GameEngine._keys[key_code]
 
 
 

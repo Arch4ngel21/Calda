@@ -33,7 +33,7 @@ class LevelMap:
 
         for y in range(self._level_map_height):
             for x in range(self._level_map_width):
-                r, g, b = image.getpixel((x, y))
+                r, g, b, alpha = image.getpixel((x, y))
 
                 if (26, 213, 0) == (r, g, b):
 

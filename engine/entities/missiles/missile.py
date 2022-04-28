@@ -1,7 +1,7 @@
 import pygame
 
 from utilities.map_direction import MapDirection
-from gui.main_screen import MainScreen
+from utilities.settings import Settings
 
 
 class Missile:
@@ -22,16 +22,16 @@ class Missile:
 
     def should_animation_end(self) -> bool:
         return abs(self._x - self._start_x) >= self._lifespan*32 or abs(self._y-self._start_y) >= self._lifespan*32 or\
-               self._x + self._velocity >= MainScreen.WINDOW_WIDTH or self._x-self._velocity < 0 or\
-               self._y + self._velocity >= MainScreen.WINDOW_HEIGHT or self._y - self._velocity < 0
+               self._x + self._velocity >= Settings.GAME_WINDOW_WIDTH or self._x-self._velocity < 0 or\
+               self._y + self._velocity >= Settings.GAME_WINDOW_HEIGHT or self._y - self._velocity < 0
 
     def move(self):
         if self._facing == MapDirection.NORTH and self._y - self._velocity >= 0:
             self._y -= self._velocity
             self._bound_box.y -= 2
-        if self._facing == MapDirection.EAST and self._x + self._velocity <= MainScreen.WINDOW_WIDTH:
+        if self._facing == MapDirection.EAST and self._x + self._velocity <= Settings.GAME_WINDOW_WIDTH:
             self._x += self._velocity
-        if self._facing == MapDirection.SOUTH and self._y + self._velocity <= MainScreen.WINDOW_HEIGHT:
+        if self._facing == MapDirection.SOUTH and self._y + self._velocity <= Settings.GAME_WINDOW_HEIGHT:
             self._y += self._velocity
         if self._facing == MapDirection.WEST and self._x - self._velocity >= 0:
             self._x -= self._velocity
