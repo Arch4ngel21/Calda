@@ -20,7 +20,7 @@ class Entity(pygame.sprite.Sprite):
         self._bounding_box: Optional[pygame.Rect] = None
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.image, self.rect)
+        screen.blit(self.image, self._rect)
 
     def heal(self, health_amount: int):
         self._health += health_amount

@@ -5,17 +5,18 @@ from engine.entities.entity import Entity
 
 
 class Player(Entity):
-    BOUNDING_BOX_SIZE: int = 48
-    HIT_BOX_SIZE: int = 32
+    BOUNDING_BOX_SIZE: int = 64
+    HIT_BOX_SIZE: int = 42
+    HIT_BOX_VERTICAL: int = 18
 
     def __init__(self, x: int, y: int, health: int, damage: int):
         super().__init__(x, y, health, damage)
         self._coins: int = 0
         self._has_sword: bool = False
         self._facing: MapDirection = MapDirection.WEST
-        self._hit_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
-        # self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
-        self.rect: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+        self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
+        # it's hit box
+        self._rect: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
         self._is_damaged = 0
         self._is_walking = False
@@ -26,26 +27,28 @@ class Player(Entity):
 
         if self._facing == MapDirection.NORTH:
             self._y -= 1
-            self._hit_box.y -= 1
-            self.rect.y -= 1
-            self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.BOUNDING_BOX_SIZE)
+            self._bounding_box.y -= 1
+            self._rect.y -= 1
+            self._bounding_box.update(self._x, self._y-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
+            self._rect.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.WEST:
             self._x -= 1
-            self._hit_box.x -= 1
-            self.rect.x -= 1
-            self._hit_box.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._bounding_box.x -= 1
+            self._rect.x -= 1
+            self._bounding_box.update(self._x-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._rect.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.EAST:
             self._x += 1
-            self._hit_box.x += 1
-            self.rect.x += 1
-            self._hit_box.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._bounding_box.x += 1
+            self._rect.x += 1
+            self._bounding_box.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._rect.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.SOUTH:
             self._y += 1
-            self._hit_box.y += 1
-            self.rect.y += 1
-            self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.BOUNDING_BOX_SIZE)
-
-        self.rect.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.BOUNDING_BOX_SIZE)
+            self._bounding_box.y += 1
+            self._rect.y += 1
+            self._bounding_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
+            self._rect.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
 
         self.increase_animation_frame()
         self.update_image()

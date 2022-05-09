@@ -208,9 +208,9 @@ class MainScreen:
 
     @staticmethod
     def render_debug(player: Player):
-        MainScreen.screen.blit(ResourceManager.piksel, player.rect)
-        pygame.draw.rect(MainScreen.screen, (0, 0, 255), (player.rect.x, player.rect.y, player.rect.width, player.rect.height), 1)
-        pygame.draw.rect(MainScreen.screen, (255, 0, 0), (player._hit_box.x, player._hit_box.y, player._hit_box.width, player._hit_box.height), 1)
+        MainScreen.screen.blit(ResourceManager.piksel, player._rect)
+        pygame.draw.rect(MainScreen.screen, (0, 0, 255), (player._rect.x, player._rect.y, player._rect.width, player._rect.height), 1)
+        pygame.draw.rect(MainScreen.screen, (255, 0, 0), (player._bounding_box.x, player._bounding_box.y, player._bounding_box.width, player._bounding_box.height), 1)
 
 
 
