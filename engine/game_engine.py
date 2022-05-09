@@ -61,9 +61,15 @@ class GameEngine:
 
                 GameEngine._player.is_walking = False
                 if event.type == pygame.KEYDOWN:
-                    GameEngine.press_key(event.key)
+                    try:
+                        GameEngine.press_key(event.key)
+                    except KeyCodeError:
+                        print("Not accepted key")
                 elif event.type == pygame.KEYUP:
-                    GameEngine.release_key(event.key)
+                    try:
+                        GameEngine.release_key(event.key)
+                    except KeyCodeError:
+                        print("Not accepted key")
 
             GameEngine._handle_level_change()
             GameEngine._handle_key_inputs()
@@ -352,7 +358,7 @@ class GameEngine:
     def _handle_level_change():
         player: Player = GameEngine._player
 
-        if player.x >= Settings.GAME_WINDOW_WIDTH - player.rect.width:
+        if player.x >= Settings.GAME_WINDOW_WIDTH - player._rect.width:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x + 1,
                                                                         GameEngine._current_level.world_map_y)
             player.x = 1
@@ -367,7 +373,7 @@ class GameEngine:
         elif player.x <= 0:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x - 1,
                                                                         GameEngine._current_level.world_map_y)
-            player.x = Settings.GAME_WINDOW_WIDTH - player.rect.width
+            player.x = Settings.GAME_WINDOW_WIDTH - player._rect.width
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
@@ -376,7 +382,7 @@ class GameEngine:
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
-        elif player.y >= Settings.GAME_WINDOW_HEIGHT - player.rect.height:
+        elif player.y >= Settings.GAME_WINDOW_HEIGHT - player._rect.height:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
                                                                         GameEngine._current_level.world_map_y - 1)
             player.y = 1
@@ -391,7 +397,7 @@ class GameEngine:
         elif player.y <= 0:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
                                                                         GameEngine._current_level.world_map_y + 1)
-            player.y = Settings.GAME_WINDOW_HEIGHT - player.rect.height
+            player.y = Settings.GAME_WINDOW_HEIGHT - player._rect.height
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
@@ -440,10 +446,15 @@ class GameEngine:
 
     @staticmethod
     def press_key(key_code: int):
+        if key_code > 122:
+            raise KeyCodeError
+        print(key_code)
         GameEngine._keys[key_code] = True
 
     @staticmethod
     def release_key(key_code: int):
+        if key_code > 122:
+            raise KeyCodeError
         GameEngine._keys[key_code] = False
 
     @staticmethod
