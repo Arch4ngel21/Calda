@@ -43,3 +43,7 @@ class Collectible:
         if not isinstance(value, ItemType):
             raise ValueError("item_type must be an ItemType")
         self._item_type = value
+
+    @property
+    def bounding_box(self) -> pygame.Rect:
+        return self._bounding_box

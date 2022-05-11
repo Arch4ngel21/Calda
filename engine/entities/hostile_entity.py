@@ -46,8 +46,6 @@ class HostileEntity(Entity):
 
         self.increase_steps()
 
-    #TODO
-    # zastanowić się czy te metody mają być publiczne
     def increase_animation_frame(self):
         self._animation_frame += 1
         if self._animation_frame >= 500:
@@ -59,7 +57,12 @@ class HostileEntity(Entity):
             self._steps = 0
 
     def increase_attack_frame(self):
-        pass
+        self._attack_frame += 1
+        if self._attack_frame == 30:
+            return True
+        if self._attack_frame > 30:
+            self._attack_frame = 0
+        return False
 
     def follow_player(self, player: Player):
         distance_to_follow: int

@@ -105,8 +105,11 @@ class Player(Entity):
 
     def increase_attack_frame(self):
         self._attack_frame += 1
+        if self.attack_frame == 30:
+            return True
         if self._attack_frame > 30:
             self._attack_frame = 0
+        return False
 
     def increase_animation_frame(self):
         self._animation_frame += 1
@@ -148,11 +151,3 @@ class Player(Entity):
     @is_walking.setter
     def is_walking(self, value: bool):
         self._is_walking = value
-
-    @property
-    def hit_box(self) -> pygame.Rect:
-        return self._hit_box
-
-    @property
-    def bounding_box(self) -> pygame.Rect:
-        return self._bounding_box

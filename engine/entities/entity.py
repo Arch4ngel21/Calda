@@ -79,4 +79,11 @@ class Entity(pygame.sprite.Sprite):
     def bounding_box(self):
         return self._bounding_box
 
+    @property
+    def hit_box(self) -> pygame.Rect:
+        return self._hit_box
+
+    @property
+    def attack_damage(self) -> int:
+        return self._damage
 

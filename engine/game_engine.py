@@ -71,8 +71,10 @@ class GameEngine:
                     except KeyCodeError:
                         print("Not accepted key")
 
-            GameEngine._handle_level_change()
             GameEngine._handle_key_inputs()
+            GameEngine._handle_player_attack()
+            GameEngine._handle_pick_up_items()
+            GameEngine._handle_level_change()
             GameEngine._handle_enemies_movement()
             GameEngine._handle_enemies_attack()
             GameEngine._handle_peaceful_entities_actions()
@@ -296,7 +298,7 @@ class GameEngine:
             enemy.increase_attack_frame()
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
-            # TODO kolizje
+
 
     @staticmethod
     def _handle_attack_ghost(ghost: HostileEntity):
@@ -325,16 +327,28 @@ class GameEngine:
 
     @staticmethod
     def _handle_pick_up_items():
-        # TODO jak ogarniemy kolizje
-        pass
+        to_remove = []
+        for item in GameEngine._items:
+            if item.bounding_box.colliderect(GameEngine._player.hit_box):
+                if item.item_type == ItemType.COIN:
+                    GameEngine._player.add_coin()
+                if item.item_type == ItemType.HEALTH:
+                    GameEngine._player.add_max_health()
+                to_remove.append(item)
+        for item in to_remove:
+            GameEngine._items.remove(item)
 
     @staticmethod
     def _handle_player_attack():
         player: Player = GameEngine._player
         if player.attack_frame == 0:
             return
-        player.increase_attack_frame()
-        # TODO kolizje
+        should_damage: bool = player.increase_attack_frame()
+        if not should_damage:
+            return
+        for enemy in GameEngine._hostile_entities:
+            if player.bounding_box.colliderect(enemy.hit_box):
+                enemy.damage(player.attack_damage)
 
     @staticmethod
     def _start_player_attack_animation():
