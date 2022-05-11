@@ -16,7 +16,6 @@ class Missile:
         self._lifespan: int
         self._damage: int
         self._bound_box: pygame.Rect
-
     def increase_animation_frame(self):
         pass
 
@@ -55,3 +54,7 @@ class Missile:
         if not isinstance(value, int):
             raise ValueError("y must be an int")
         self._y = value
+
+    @property
+    def bound_box(self) -> pygame.Rect:
+        return self._bound_box

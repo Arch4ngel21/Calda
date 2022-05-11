@@ -13,14 +13,11 @@ class Player(Entity):
         super().__init__(x, y, health, damage)
         self._coins: int = 0
         self._has_sword: bool = False
-        self._facing: MapDirection = MapDirection.WEST
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
-        # it's hit box
-        self._rect: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
+        self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
-        self._is_damaged = 0
         self._is_walking = False
-        self.image = ResourceManager.player_walking_left_1
+        self._image = ResourceManager.player_walking_left_1
 
     def move(self):
         self._is_walking = True
@@ -28,27 +25,27 @@ class Player(Entity):
         if self._facing == MapDirection.NORTH:
             self._y -= 1
             self._bounding_box.y -= 1
-            self._rect.y -= 1
+            self._hit_box.y -= 1
             self._bounding_box.update(self._x, self._y-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
-            self._rect.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
+            self._hit_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.WEST:
             self._x -= 1
             self._bounding_box.x -= 1
-            self._rect.x -= 1
+            self._hit_box.x -= 1
             self._bounding_box.update(self._x-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
-            self._rect.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.EAST:
             self._x += 1
             self._bounding_box.x += 1
-            self._rect.x += 1
+            self._hit_box.x += 1
             self._bounding_box.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
-            self._rect.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
+            self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.SOUTH:
             self._y += 1
             self._bounding_box.y += 1
-            self._rect.y += 1
+            self._hit_box.y += 1
             self._bounding_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
-            self._rect.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
+            self._hit_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
 
         self.increase_animation_frame()
         self.update_image()
@@ -56,13 +53,13 @@ class Player(Entity):
     def update_image(self):
         if self._is_damaged:
             if self._facing == MapDirection.NORTH:
-                self.image = ResourceManager.player_walking_back_1
+                self._image = ResourceManager.player_walking_back_1
             elif self._facing == MapDirection.SOUTH:
-                self.image = ResourceManager.player_walking_front_1
+                self._image = ResourceManager.player_walking_front_1
             elif self._facing == MapDirection.WEST:
-                self.image = ResourceManager.player_walking_left_1
+                self._image = ResourceManager.player_walking_left_1
             else:
-                self.image = pygame.transform.flip(ResourceManager.player_walking_left_1, True, False)
+                self._image = pygame.transform.flip(ResourceManager.player_walking_left_1, True, False)
 
             # TODO - Y Offset
 
@@ -75,9 +72,9 @@ class Player(Entity):
                 image_version = 2
 
             if self._facing == MapDirection.EAST:
-                self.image = pygame.transform.flip(ResourceManager.player_attack[1][image_version], True, False)
+                self._image = pygame.transform.flip(ResourceManager.player_attack[1][image_version], True, False)
             else:
-                self.image = ResourceManager.player_attack[self._facing.value][image_version]
+                self._image = ResourceManager.player_attack[self._facing.value][image_version]
 
         else:
             if self._animation_frame < 15:
@@ -87,14 +84,14 @@ class Player(Entity):
 
             if self._facing == MapDirection.EAST:
                 if self._is_walking:
-                    self.image = pygame.transform.flip(ResourceManager.player_movement[4][self._has_sword][image_version], True, False)
+                    self._image = pygame.transform.flip(ResourceManager.player_movement[4][self._has_sword][image_version], True, False)
                 else:
-                    self.image = pygame.transform.flip(ResourceManager.player_movement[1][self._has_sword][image_version], True, False)
+                    self._image = pygame.transform.flip(ResourceManager.player_movement[1][self._has_sword][image_version], True, False)
 
             elif self._is_walking:
-                self.image = ResourceManager.player_movement[self._facing.value+3][self._has_sword][image_version]
+                self._image = ResourceManager.player_movement[self._facing.value + 3][self._has_sword][image_version]
             else:
-                self.image = ResourceManager.player_movement[self._facing.value][self._has_sword][image_version]
+                self._image = ResourceManager.player_movement[self._facing.value][self._has_sword][image_version]
 
     def add_health(self):
         self.heal(2)
@@ -151,3 +148,11 @@ class Player(Entity):
     @is_walking.setter
     def is_walking(self, value: bool):
         self._is_walking = value
+
+    @property
+    def hit_box(self) -> pygame.Rect:
+        return self._hit_box
+
+    @property
+    def bounding_box(self) -> pygame.Rect:
+        return self._bounding_box

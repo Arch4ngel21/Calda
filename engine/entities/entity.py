@@ -14,13 +14,13 @@ class Entity(pygame.sprite.Sprite):
         self._damage: int = damage
         self._animation_frame = 0
         self._invincible_frame = 0
-        self._facing: MapDirection = MapDirection.NORTH
+        self._facing: MapDirection = MapDirection.WEST
         self._is_damaged = False
         self._hit_box: Optional[pygame.Rect] = None
         self._bounding_box: Optional[pygame.Rect] = None
 
     def draw(self, screen: pygame.Surface):
-        screen.blit(self.image, self._rect)
+        screen.blit(self._image, self._hit_box)
 
     def heal(self, health_amount: int):
         self._health += health_amount
@@ -37,7 +37,13 @@ class Entity(pygame.sprite.Sprite):
         self._health -= damage_amount
 
     def increase_invincible_frame(self):
-        pass
+        if self._is_damaged:
+            self._invincible_frame += 1
+            if self._invincible_frame == 30:
+                self._is_damaged = False
+                self._invincible_frame = 0
+
+
 
     @property
     def facing(self):
