@@ -81,15 +81,15 @@ class MainScreen:
                     block_image = ResourceManager.path_1
                 elif curr_level.get_block(x, y).block_name == "path_straight_up":
                     block_image = ResourceManager.path_3
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_straight_down":
                     block_image = ResourceManager.path_3
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_straight_left":
                     block_image = ResourceManager.path_3
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_straight_right":
                     block_image = ResourceManager.path_3
@@ -97,15 +97,15 @@ class MainScreen:
 
                 elif curr_level.get_block(x, y).block_name == "path_corner_left_down":
                     block_image = ResourceManager.path_4
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_corner_left_up":
                     block_image = ResourceManager.path_4
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_corner_right_up":
                     block_image = ResourceManager.path_4
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_corner_right_down":
                     block_image = ResourceManager.path_4
@@ -113,15 +113,15 @@ class MainScreen:
 
                 elif curr_level.get_block(x, y).block_name == "path_turn_left_down":
                     block_image = ResourceManager.path_2
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_turn_left_up":
                     block_image = ResourceManager.path_2
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_turn_right_up":
                     block_image = ResourceManager.path_2
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "path_turn_right_down":
                     block_image = ResourceManager.path_2
@@ -132,31 +132,31 @@ class MainScreen:
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_straight_up":
                     block_image = ResourceManager.water_2
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_straight_down":
                     block_image = ResourceManager.water_2
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_straight_left":
                     block_image = ResourceManager.water_2
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_straight_right":
                     block_image = ResourceManager.water_2
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
 
                 elif curr_level.get_block(x, y).block_name == "shore_corner_left_down":
                     block_image = ResourceManager.water_1
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_corner_left_up":
                     block_image = ResourceManager.water_1
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_corner_right_up":
                     block_image = ResourceManager.water_1
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_corner_right_down":
                     block_image = ResourceManager.water_1
@@ -164,15 +164,15 @@ class MainScreen:
 
                 elif curr_level.get_block(x, y).block_name == "shore_turn_left_down":
                     block_image = ResourceManager.water_3
-                    pygame.transform.rotate(block_image, 90)
+                    block_image = pygame.transform.rotate(block_image, 90)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_turn_left_up":
                     block_image = ResourceManager.water_3
-                    pygame.transform.rotate(block_image, 180)
+                    block_image = pygame.transform.rotate(block_image, 180)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_turn_right_up":
                     block_image = ResourceManager.water_3
-                    pygame.transform.rotate(block_image, 270)
+                    block_image = pygame.transform.rotate(block_image, 270)
                     back_image = ResourceManager.grass_3
                 elif curr_level.get_block(x, y).block_name == "shore_turn_right_down":
                     block_image = ResourceManager.water_3
@@ -211,6 +211,5 @@ class MainScreen:
         MainScreen.screen.blit(ResourceManager.piksel, player._hit_box)
         pygame.draw.rect(MainScreen.screen, (0, 0, 255), (player._hit_box.x, player._hit_box.y, player._hit_box.width, player._hit_box.height), 1)
         pygame.draw.rect(MainScreen.screen, (255, 0, 0), (player._bounding_box.x, player._bounding_box.y, player._bounding_box.width, player._bounding_box.height), 1)
-
 
 

@@ -132,6 +132,8 @@ class LevelMap:
                     else:
                         print(f"Zle obliczona orientacja dla bloku ({x, y})")
                         raise WrongBlockOrientation
+                    if world_map_x == 2 and world_map_y == 0:
+                        print(self._level[y][x].block_name)
 
                 elif (195, 193, 0) == (r, g, b):
 
@@ -292,7 +294,7 @@ class LevelMap:
                 return LevelMap.BlockOrientation.CORNER_LEFT_DOWN
 
             if check_square[2][1] and check_square[2][0] and check_square[1][0]:
-                return LevelMap.BlockOrientation.CORNER_LEFT_DOWN
+                return LevelMap.BlockOrientation.CORNER_LEFT_UP
 
             if check_square[1][0] and check_square[0][0] and check_square[0][1]:
                 return LevelMap.BlockOrientation.CORNER_RIGHT_UP
@@ -306,7 +308,7 @@ class LevelMap:
             if (check_square[2][0] and check_square[2][1]) or (check_square[2][1] and check_square[2][2]):
                 return LevelMap.BlockOrientation.STRAIGHT_LEFT
 
-            if (check_square[0][0] and check_square[1][2]) or (check_square[1][0] and check_square[2][0]):
+            if (check_square[0][0] and check_square[1][0]) or (check_square[1][0] and check_square[2][0]):
                 return LevelMap.BlockOrientation.STRAIGHT_UP
 
             if check_square[0][0]:
