@@ -5,6 +5,7 @@ from utilities.settings import Settings
 
 
 class Missile:
+    BOX_SIZE = 8
     def __init__(self, x: int, y: int, velocity: int, facing: MapDirection):
         self._x: int = x
         self._y: int = y
@@ -27,13 +28,13 @@ class Missile:
     def move(self):
         if self._facing == MapDirection.NORTH and self._y - self._velocity >= 0:
             self._y -= self._velocity
-            self._bound_box.y -= 2
         if self._facing == MapDirection.EAST and self._x + self._velocity <= Settings.GAME_WINDOW_WIDTH:
             self._x += self._velocity
         if self._facing == MapDirection.SOUTH and self._y + self._velocity <= Settings.GAME_WINDOW_HEIGHT:
             self._y += self._velocity
         if self._facing == MapDirection.WEST and self._x - self._velocity >= 0:
             self._x -= self._velocity
+        self._bound_box.update(self.x, self.y, self.BOX_SIZE, self.BOX_SIZE)
 
     @property
     def x(self) -> int:
@@ -58,3 +59,7 @@ class Missile:
     @property
     def bound_box(self) -> pygame.Rect:
         return self._bound_box
+
+    @property
+    def damage(self) -> int:
+        return self.damage

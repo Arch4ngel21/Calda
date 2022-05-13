@@ -190,3 +190,10 @@ class HostileEntity(Entity):
     def hostile_entity_type(self) -> HostileEntityType:
         return self._entity_type
 
+    @property
+    def is_following(self) -> bool:
+        return self._is_following_player
+
+    @property
+    def attack_frame(self) -> int:
+        return self._attack_frame

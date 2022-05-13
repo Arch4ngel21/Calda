@@ -31,7 +31,7 @@ from gui.main_screen import MainScreen
 class GameEngine:
     _initialized = False
 
-    _keys = [False for _ in range(123)] # tablica przycisków
+    _keys = [False for _ in range(123)]  # tablica przycisków
     _player: Player = None
     _hostile_entities: List[HostileEntity] = []
     _peaceful_entities: List[PeacefulEntity] = []
@@ -148,9 +148,10 @@ class GameEngine:
         if entity.facing == MapDirection.NORTH:
             # normalizacja do lewego gornego rogu
             if entity.y == block_y * Settings.BLOCK_SIZE:
-                if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
+                if not GameEngine._current_level.get_block(block_x, block_y - 1).is_passable:
                     return False
-                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                                   block_y - 1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.SOUTH:
@@ -159,9 +160,10 @@ class GameEngine:
                 block_y += 1
 
             if entity.y == block_y * Settings.BLOCK_SIZE:
-                if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
+                if not GameEngine._current_level.get_block(block_x, block_y + 1).is_passable:
                     return False
-                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                                   block_y + 1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.EAST:
@@ -170,17 +172,19 @@ class GameEngine:
                 block_x += 1
 
             if entity.x == block_x * Settings.BLOCK_SIZE:
-                if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
+                if not GameEngine._current_level.get_block(block_x + 1, block_y).is_passable:
                     return False
-                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                                   block_y + 1).is_passable:
                     return False
 
         elif entity.facing == MapDirection.WEST:
             # normalizacja do lewego gornego rogu
             if entity.x == block_x * Settings.BLOCK_SIZE:
-                if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
+                if not GameEngine._current_level.get_block(block_x - 1, block_y).is_passable:
                     return False
-                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+                if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x - 1,
+                                                                                                   block_y + 1).is_passable:
                     return False
 
         return True
@@ -204,27 +208,31 @@ class GameEngine:
             block_x += 1
 
         if entity.facing == MapDirection.NORTH and entity.y % Settings.BLOCK_SIZE == 0:
-            if not GameEngine._current_level.get_block(block_x, block_y-1).is_passable:
+            if not GameEngine._current_level.get_block(block_x, block_y - 1).is_passable:
                 return False
-            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y-1).is_passable:
+            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                               block_y - 1).is_passable:
                 return False
 
         elif entity.facing == MapDirection.SOUTH and entity.y % Settings.BLOCK_SIZE == 0:
-            if not GameEngine._current_level.get_block(block_x, block_y+1).is_passable:
+            if not GameEngine._current_level.get_block(block_x, block_y + 1).is_passable:
                 return False
-            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+            if entity.x % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                               block_y + 1).is_passable:
                 return False
 
         elif entity.facing == MapDirection.EAST and entity.x % Settings.BLOCK_SIZE == 0:
-            if not GameEngine._current_level.get_block(block_x+1, block_y).is_passable:
+            if not GameEngine._current_level.get_block(block_x + 1, block_y).is_passable:
                 return False
-            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x+1, block_y+1).is_passable:
+            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x + 1,
+                                                                                               block_y + 1).is_passable:
                 return False
 
         elif entity.facing == MapDirection.WEST and entity.x % Settings.BLOCK_SIZE == 0:
-            if not GameEngine._current_level.get_block(block_x-1, block_y).is_passable:
+            if not GameEngine._current_level.get_block(block_x - 1, block_y).is_passable:
                 return False
-            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x-1, block_y+1).is_passable:
+            if entity.y % Settings.BLOCK_SIZE != 0 and not GameEngine._current_level.get_block(block_x - 1,
+                                                                                               block_y + 1).is_passable:
                 return False
 
         elif not isinstance(entity.facing, MapDirection):
@@ -249,8 +257,6 @@ class GameEngine:
         if GameEngine.is_pressed(pygame.K_e):
             GameEngine._handle_player_interaction()
 
-
-
     @staticmethod
     def _handle_player_interaction():
         player: Player = GameEngine._player
@@ -263,7 +269,8 @@ class GameEngine:
                     if item.item_type == ItemType.HEALTH:
                         player.add_health()
                     """czy na pewno chcemy to robić w zależności od pozycji gracza, a nie skrzyni?"""
-                    GameEngine._effects.append(ChestOpenEffect(player.x + i*10, player.y - i*10 - 16, item.item_type))
+                    GameEngine._effects.append(
+                        ChestOpenEffect(player.x + i * 10, player.y - i * 10 - 16, item.item_type))
                 if chest.container_type == ContainerType.STONE_SWORD and not player.has_sword:
                     player.has_sword = True
 
@@ -290,7 +297,7 @@ class GameEngine:
             if missile.should_animation_end():
                 to_remove.append(missile)
             if missile.bound_box.colliderect(GameEngine._player.hit_box):
-                pass
+                GameEngine._player.damage(missile.damage)
             missile.move()
 
         for missile in to_remove:
@@ -299,17 +306,28 @@ class GameEngine:
     @staticmethod
     def _handle_enemies_attack():
         for enemy in GameEngine._hostile_entities:
-            enemy.decrease_attack_frame()
+            if enemy.is_attacking:
+                enemy.decrease_attack_frame()
+                continue
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
 
-            if enemy.bounding_box.colliderect(GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
+            if enemy.bounding_box.colliderect(
+                    GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
+                enemy.set_attack_frame(45)
                 GameEngine._player.damage(enemy.attack_damage)
                 GameEngine._player.is_damaged = True
 
     @staticmethod
     def _handle_attack_ghost(ghost: HostileEntity):
-        pass
+        if ghost.is_attacking and ghost.is_following and (
+                (ghost.facing == MapDirection.NORTH or ghost == MapDirection.SOUTH)
+                and abs(GameEngine._player.y - ghost.y) <= 3) or (
+                (ghost.facing == MapDirection.EAST or ghost.facing == MapDirection.WEST)
+                and abs(GameEngine._player.x - ghost.x) <= 3):
+            ghost.set_attack_frame(50)
+            if ghost.attack_frame == 20:
+                GameEngine.start_attack_ghost(ghost)
 
     @staticmethod
     def _handle_peaceful_entities_actions():
@@ -317,7 +335,8 @@ class GameEngine:
         for entity in GameEngine._peaceful_entities:
             if entity.peaceful_entity_type == PeacefulEntityType.TREE_OF_HEALTH:
                 entity.increase_passive_effect_frame()
-                if GameEngine.distance(player.x, player.y, entity.x, entity.y) <= 128 and entity.passive_effect_frame == 100:
+                if GameEngine.distance(player.x, player.y, entity.x,
+                                       entity.y) <= 128 and entity.passive_effect_frame == 100:
                     player.heal(2)
 
     @staticmethod
@@ -428,7 +447,6 @@ class GameEngine:
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
-
     @staticmethod
     def _handle_enter_dungeon():
         # TODO - brzydkie rozwiazanie tego problemu
@@ -464,7 +482,7 @@ class GameEngine:
 
     @staticmethod
     def distance(x1: int, y1: int, x2: int, y2: int) -> int:
-        return int(math.sqrt((x2 - x1)**2 + (y2 - y1)**2))
+        return int(math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2))
 
     @staticmethod
     def press_key(key_code: int):
@@ -483,6 +501,3 @@ class GameEngine:
         if key_code > 122:
             raise KeyCodeError
         return GameEngine._keys[key_code]
-
-
-
