@@ -91,12 +91,14 @@ class GameEngine:
         GameEngine.generate_levels()
         GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+        GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._is_running = True
 
     @staticmethod
     def _render_screen():
         MainScreen.render_map(GameEngine._current_level)
         MainScreen.render_player(GameEngine._player)
+        MainScreen.render_enemies(GameEngine._hostile_entities)
         MainScreen.render_debug(GameEngine._player)
         pygame.display.flip()
 
@@ -112,6 +114,9 @@ class GameEngine:
                   LevelMap(0, 4, ResourceManager.level_0_4), LevelMap(1, 3, ResourceManager.level_1_3),
                   LevelMap(1, 4, ResourceManager.level_1_4), LevelMap(2, 4, ResourceManager.level_2_4),
                   LevelMap(3, 4, ResourceManager.level_3_4), LevelMap(4, 4, ResourceManager.level_4_4)]
+
+        levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 200, 10, 1, HostileEntityType.GHOST))
+        levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 400, 10, 1, HostileEntityType.SLIME))
 
         for level in levels:
             GameEngine._world_map.add_level(level)
@@ -270,7 +275,6 @@ class GameEngine:
 
     @staticmethod
     def _handle_enemies_movement():
-        # TODO animation
         for enemy in GameEngine._hostile_entities:
             enemy.follow_player(GameEngine._player)
             if GameEngine._can_entity_move(enemy) and not enemy.is_attacking:
@@ -295,10 +299,13 @@ class GameEngine:
     @staticmethod
     def _handle_enemies_attack():
         for enemy in GameEngine._hostile_entities:
-            enemy.increase_attack_frame()
+            enemy.decrease_attack_frame()
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
 
+            if enemy.bounding_box.colliderect(GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
+                GameEngine._player.damage(enemy.attack_damage)
+                GameEngine._player.is_damaged = True
 
     @staticmethod
     def _handle_attack_ghost(ghost: HostileEntity):

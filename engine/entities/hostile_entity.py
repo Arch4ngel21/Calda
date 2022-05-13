@@ -6,11 +6,12 @@ import math
 from engine.entities.entity import Entity
 from engine.entities.player import Player
 from utilities.map_direction import MapDirection
+from utilities.resource_manager import ResourceManager
 
 
 class HostileEntityType(Enum):
     GHOST = 0
-    SLIME = 0
+    SLIME = 1
 
 
 class HostileEntity(Entity):
@@ -27,15 +28,20 @@ class HostileEntity(Entity):
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.BOX_SIZE, self.BOX_SIZE)
         self._facing: MapDirection = MapDirection.WEST
 
+        if self._entity_type == HostileEntityType.GHOST:
+            self._image = ResourceManager.ghost_moving_1
+        else:
+            self._image = ResourceManager.slime_standing_1
+
     def move(self):
         if self._steps % 3 == 0:
             if self._facing == MapDirection.NORTH:
                 self._y -= 1
-            if self._facing == MapDirection.WEST:
+            elif self._facing == MapDirection.WEST:
                 self._x -= 1
-            if self._facing == MapDirection.EAST:
+            elif self._facing == MapDirection.EAST:
                 self._x += 1
-            if self._facing == MapDirection.SOUTH:
+            elif self._facing == MapDirection.SOUTH:
                 self._y += 1
             self._bounding_box.update(self._x, self._x, self.BOX_SIZE, self.BOX_SIZE)
             self._hit_box.update(self._x, self._x, self.BOX_SIZE, self.BOX_SIZE)
@@ -45,6 +51,73 @@ class HostileEntity(Entity):
             self._facing = self.new_direction()
 
         self.increase_steps()
+        self.update_image()
+
+    def update_image(self):
+        if self.hostile_entity_type == HostileEntityType.GHOST:
+            if self._attack_frame == 0:
+                if self._animation_frame > 438:
+                    self._image = ResourceManager.ghost_moving_1
+                elif self._animation_frame > 375:
+                    self._image = ResourceManager.ghost_moving_2
+                elif self._animation_frame > 313:
+                    self._image = ResourceManager.ghost_moving_3
+                elif self._animation_frame > 250:
+                    self._image = ResourceManager.ghost_moving_4
+                elif self._animation_frame > 188:
+                    self._image = ResourceManager.ghost_moving_5
+                elif self._animation_frame > 125:
+                    self._image = ResourceManager.ghost_moving_6
+                elif self._animation_frame > 62:
+                    self._image = ResourceManager.ghost_moving_7
+                else:
+                    self._image = ResourceManager.ghost_moving_8
+
+            else:
+                if self._attack_frame > 40:
+                    self._image = ResourceManager.ghost_attack_1
+                elif self._attack_frame > 30:
+                    self._image = ResourceManager.ghost_attack_2
+                elif self._attack_frame > 20:
+                    self._image = ResourceManager.ghost_attack_3
+                elif self._attack_frame > 10:
+                    self._image = ResourceManager.ghost_attack_4
+                else:
+                    self._image = ResourceManager.ghost_attack_5
+
+        elif self.hostile_entity_type == HostileEntityType.SLIME:
+            if self._attack_frame == 0:
+                if self._animation_frame > 429:
+                    self._image = ResourceManager.slime_standing_1
+                elif self._animation_frame > 358:
+                    self._image = ResourceManager.slime_standing_2
+                elif self._animation_frame > 287:
+                    self._image = ResourceManager.slime_standing_3
+                elif self._animation_frame > 216:
+                    self._image = ResourceManager.slime_standing_4
+                elif self._animation_frame > 145:
+                    self._image = ResourceManager.slime_standing_5
+                elif self._animation_frame > 73:
+                    self._image = ResourceManager.slime_standing_6
+                else:
+                    self._image = ResourceManager.slime_standing_7
+
+            # TODO - Offset!
+            else:
+                if self._attack_frame > 35:
+                    self._image = ResourceManager.slime_jumping_1
+                elif self._attack_frame > 30:
+                    self._image = ResourceManager.slime_jumping_2
+                elif self._attack_frame > 25:
+                    self._image = ResourceManager.slime_jumping_3
+                elif self._attack_frame > 20:
+                    self._image = ResourceManager.slime_jumping_4
+                elif self._attack_frame > 15:
+                    self._image = ResourceManager.slime_jumping_5
+                elif self._attack_frame > 10:
+                    self._image = ResourceManager.slime_jumping_6
+                else:
+                    self._image = ResourceManager.slime_jumping_7
 
     def increase_animation_frame(self):
         self._animation_frame += 1
@@ -56,13 +129,15 @@ class HostileEntity(Entity):
         if self._steps >= 500:
             self._steps = 0
 
-    def increase_attack_frame(self):
-        self._attack_frame += 1
-        if self._attack_frame == 30:
-            return True
-        if self._attack_frame > 30:
-            self._attack_frame = 0
-        return False
+    def decrease_attack_frame(self):
+        if self._attack_frame == 0:
+            self._is_attacking = False
+        else:
+            self._attack_frame -= 1
+
+    def set_attack_frame(self, value: int):
+        self._is_attacking = True
+        self._attack_frame = value
 
     def follow_player(self, player: Player):
         distance_to_follow: int

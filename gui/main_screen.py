@@ -1,10 +1,13 @@
 import pygame
 
 from engine.entities.player import Player
+from engine.entities.hostile_entity import HostileEntity, HostileEntityType
 from engine.world.level_map import LevelMap
 from utilities.resource_manager import ResourceManager
 from utilities.settings import Settings
 from utilities.map_direction import MapDirection
+
+from typing import List
 
 
 class MainScreen:
@@ -211,5 +214,12 @@ class MainScreen:
         MainScreen.screen.blit(ResourceManager.piksel, player._hit_box)
         pygame.draw.rect(MainScreen.screen, (0, 0, 255), (player._hit_box.x, player._hit_box.y, player._hit_box.width, player._hit_box.height), 1)
         pygame.draw.rect(MainScreen.screen, (255, 0, 0), (player._bounding_box.x, player._bounding_box.y, player._bounding_box.width, player._bounding_box.height), 1)
+
+    @staticmethod
+    def render_enemies(enemies_list: List[HostileEntity]):
+        for enemy in enemies_list:
+            enemy.draw(MainScreen.screen)
+
+
 
 
