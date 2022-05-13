@@ -9,6 +9,7 @@ from engine.entities.hostile_entity import HostileEntity
 from engine.entities.peaceful_entity import PeacefulEntity
 from engine.entities.container import Container
 from engine.world.block import Block
+from utilities.exceptions import EmptyBlockException, WrongBlockOrientation
 
 
 class LevelMap:
@@ -58,7 +59,7 @@ class LevelMap:
                         self._level[y][x] = Block(x, y, "bricks2", True)
                     elif rand == 2:
                         self._level[y][x] = Block(x, y, "bricks3", True)
-                    elif rand == 3:
+                    else:
                         self._level[y][x] = Block(x, y, "bricks4", True)
 
                 elif (85, 85, 85) == (r, g, b):
@@ -80,7 +81,7 @@ class LevelMap:
                         self._level[y][x] = Block(x, y, "dungeon_bricks2", False)
                     elif rand == 2:
                         self._level[y][x] = Block(x, y, "dungeon_bricks3", False)
-                    elif rand == 3:
+                    else:
                         self._level[y][x] = Block(x, y, "dungeon_bricks4", False)
 
                 elif (181, 85, 255) == (r, g, b):
@@ -128,6 +129,9 @@ class LevelMap:
                         self._level[y][x] = Block(x, y, "path_turn_right_down", True)
                     elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_UP:
                         self._level[y][x] = Block(x, y, "path_turn_right_up", True)
+                    else:
+                        print(f"Zle obliczona orientacja dla bloku ({x, y})")
+                        raise WrongBlockOrientation
 
                 elif (195, 193, 0) == (r, g, b):
 
@@ -161,6 +165,9 @@ class LevelMap:
                         self._level[y][x] = Block(x, y, "shore_turn_right_down", True)
                     elif orientation == LevelMap.BlockOrientation.TURN_RIGHT_UP:
                         self._level[y][x] = Block(x, y, "shore_turn_right_up", True)
+                    else:
+                        print(f"Zle obliczona orientacja dla bloku ({x, y})")
+                        raise WrongBlockOrientation
 
                 elif (224, 42, 0) == (r, g, b):
                     self._level[y][x] = Block(x, y, "campfire", False)
@@ -195,6 +202,10 @@ class LevelMap:
         return self._world_map_y
 
     def get_block(self, x: int, y: int) -> Optional[Block]:
+        if not self._level[y][x]:
+            print(f"Empty block on level: {self._world_map_x, self._world_map_y}, at {x, y}")
+            raise EmptyBlockException
+
         return self._level[y][x]
 
     @property
@@ -252,22 +263,27 @@ class LevelMap:
             accepted_values = [(26, 213, 0), (18, 146, 0), (195, 193, 0)]
 
             # Zbudowanie tablicy z boolami, gdzie True wskazuje na miejsce, gdzie nie ma bloku ścieżki
-            if x-1 >= 0 and image.getpixel((x-1, y)) in accepted_values:
+            if x-1 >= 0 and image.getpixel((x-1, y))[:-1] in accepted_values:
                 check_square[0][1] = True
-            if x-1 >= 0 and y-1 >= 0 and image.getpixel((x-1, y-1)) in accepted_values:
+            if x-1 >= 0 and y-1 >= 0 and image.getpixel((x-1, y-1))[:-1] in accepted_values:
                 check_square[0][2] = True
-            if y-1 >= 0 and image.getpixel((x, y-1)) in accepted_values:
+            if y-1 >= 0 and image.getpixel((x, y-1))[:-1] in accepted_values:
                 check_square[1][2] = True
-            if x+1 < level_map.world_map_x and y-1 >= 0 and image.getpixel((x+1, y-1)) in accepted_values:
+            if x+1 < level_map.level_map_width and y-1 >= 0 and image.getpixel((x+1, y-1))[:-1] in accepted_values:
                 check_square[2][2] = True
-            if x+1 < level_map.world_map_x and image.getpixel((x+1, y)) in accepted_values:
+            if x+1 < level_map.level_map_width and image.getpixel((x+1, y))[:-1] in accepted_values:
                 check_square[2][1] = True
-            if x+1 < level_map.world_map_x and y+1 < level_map.world_map_y and image.getpixel((x+1, y+1)) in accepted_values:
+            if x+1 < level_map.level_map_width and y+1 < level_map.level_map_height and image.getpixel((x+1, y+1))[:-1] in accepted_values:
                 check_square[2][0] = True
-            if y+1 < level_map.world_map_y and image.getpixel((x, y+1)) in accepted_values:
+            if y+1 < level_map.level_map_height and image.getpixel((x, y+1))[:-1] in accepted_values:
                 check_square[1][0] = True
-            if x-1 >= 0 and y+1 < level_map.world_map_y and image.getpixel((x-1, y+1)) in accepted_values:
+            if x-1 >= 0 and y+1 < level_map.level_map_height and image.getpixel((x-1, y+1))[:-1] in accepted_values:
                 check_square[0][0] = True
+
+            if level_map._world_map_x == 2 and level_map._world_map_y == 0:
+                print(f"Block: {x, y}")
+                for lane in check_square:
+                    print(lane)
 
             if check_square[0][1] and check_square[0][2] and check_square[1][2]:
                 return LevelMap.BlockOrientation.CORNER_RIGHT_DOWN
@@ -327,6 +343,11 @@ class LevelMap:
                 check_square[1][0] = True
             if x-1 >= 0 and y+1 < level_map.world_map_y and image.getpixel((x-1, y+1)) == water_rgb_value:
                 check_square[0][0] = True
+
+            if level_map._world_map_x == 2 and level_map._world_map_y == 0:
+                print(f"Block: {x, y}")
+                for lane in check_square:
+                    print(lane)
 
             if check_square[1][2] and check_square[2][2] and check_square[2][1]:
                 return LevelMap.BlockOrientation.TURN_RIGHT_UP
