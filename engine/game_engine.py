@@ -29,6 +29,7 @@ from gui.main_screen import MainScreen
 
 
 class GameEngine:
+    # TODO niepotrzebnie to jets chyba klasa, można po prostu metode main zrobić
     _initialized = False
 
     _keys = [False for _ in range(123)]  # tablica przycisków
@@ -369,7 +370,7 @@ class GameEngine:
         player: Player = GameEngine._player
         if player.attack_frame == 0:
             return
-        should_damage: bool = player.increase_attack_frame()
+        should_damage = player.increase_attack_frame()
         if not should_damage:
             return
         for enemy in GameEngine._hostile_entities:

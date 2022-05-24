@@ -35,6 +35,7 @@ class Entity(pygame.sprite.Sprite):
 
     def damage(self, damage_amount: int):
         self._health -= damage_amount
+        # TODO umieranie
 
     def increase_invincible_frame(self):
         if self._is_damaged:

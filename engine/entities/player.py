@@ -20,6 +20,7 @@ class Player(Entity):
         self._image = ResourceManager.player_walking_left_1
 
     def move(self):
+        # TODO przyszypszenie go bo wolno chodzi, a zwiększenie ticku zegara nie pomaga
         self._is_walking = True
 
         if self._facing == MapDirection.NORTH:
