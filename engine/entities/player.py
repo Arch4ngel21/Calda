@@ -12,7 +12,7 @@ class Player(Entity):
     def __init__(self, x: int, y: int, health: int, damage: int):
         super().__init__(x, y, health, damage)
         self._coins: int = 0
-        self._has_sword: bool = False
+        self._has_sword: bool = True
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
@@ -20,31 +20,32 @@ class Player(Entity):
         self._image = ResourceManager.player_walking_left_1
 
     def move(self):
-        # TODO przyszypszenie go bo wolno chodzi, a zwiększenie ticku zegara nie pomaga
+        # TODO naprawa systemu kolizji jak chodzimy o 3 piksele do przodu
         self._is_walking = True
+        MOVE_CHANGE = 3
 
         if self._facing == MapDirection.NORTH:
-            self._y -= 1
-            self._bounding_box.y -= 1
-            self._hit_box.y -= 1
+            self._y -= MOVE_CHANGE
+            self._bounding_box.y -= MOVE_CHANGE
+            self._hit_box.y -= MOVE_CHANGE
             self._bounding_box.update(self._x, self._y-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
             self._hit_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.WEST:
-            self._x -= 1
-            self._bounding_box.x -= 1
-            self._hit_box.x -= 1
+            self._x -= MOVE_CHANGE
+            self._bounding_box.x -= MOVE_CHANGE
+            self._hit_box.x -= MOVE_CHANGE
             self._bounding_box.update(self._x-(self.BOUNDING_BOX_SIZE-self.HIT_BOX_SIZE), self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
             self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.EAST:
-            self._x += 1
-            self._bounding_box.x += 1
-            self._hit_box.x += 1
+            self._x += MOVE_CHANGE
+            self._bounding_box.x += MOVE_CHANGE
+            self._hit_box.x += MOVE_CHANGE
             self._bounding_box.update(self._x, self._y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
             self._hit_box.update(self._x, self._y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         if self._facing == MapDirection.SOUTH:
-            self._y += 1
-            self._bounding_box.y += 1
-            self._hit_box.y += 1
+            self._y += MOVE_CHANGE
+            self._bounding_box.y += MOVE_CHANGE
+            self._hit_box.y += MOVE_CHANGE
             self._bounding_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.BOUNDING_BOX_SIZE)
             self._hit_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
 

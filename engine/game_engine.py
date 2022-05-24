@@ -84,6 +84,7 @@ class GameEngine:
             GameEngine._handle_enemies_drop()
             GameEngine._render_screen()
 
+
     @staticmethod
     def start_engine():
         # TODO
@@ -393,6 +394,7 @@ class GameEngine:
                 if rand == 2:
                     GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.HEALTH))
                 to_remove.append(enemy)
+                # TODO dodać dropienie na plansze
         for enemy in to_remove:
             GameEngine._hostile_entities.remove(enemy)
 
