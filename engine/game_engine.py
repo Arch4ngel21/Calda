@@ -74,7 +74,7 @@ class GameEngine:
 
             GameEngine._handle_key_inputs()
             GameEngine._handle_player_attack()
-            GameEngine._handle_pick_up_items()
+            GameEngine._handle_player_damaged()
             GameEngine._handle_level_change()
             GameEngine._handle_enemies_movement()
             GameEngine._handle_enemies_attack()
@@ -84,11 +84,9 @@ class GameEngine:
             GameEngine._handle_enemies_drop()
             GameEngine._render_screen()
 
-
     @staticmethod
     def start_engine():
-        # TODO
-        GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 10, 3)
+        GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
         GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
@@ -101,7 +99,10 @@ class GameEngine:
         MainScreen.render_map(GameEngine._current_level)
         MainScreen.render_player(GameEngine._player)
         MainScreen.render_enemies(GameEngine._hostile_entities)
-        MainScreen.render_debug(GameEngine._player)
+        MainScreen.render_missiles(GameEngine._missiles)
+        MainScreen.render_collectibles(GameEngine._items)
+        MainScreen.render_hud(GameEngine._player)
+        MainScreen.render_debug(GameEngine._player, GameEngine._hostile_entities)
         pygame.display.flip()
 
     @staticmethod
@@ -120,19 +121,23 @@ class GameEngine:
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 200, 10, 1, HostileEntityType.GHOST))
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 400, 10, 1, HostileEntityType.SLIME))
 
+        levels[0].add_peaceful_entity(PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+
         for level in levels:
             GameEngine._world_map.add_level(level)
 
     @staticmethod
     def _handle_player_movement(direction: MapDirection):
         player: Player = GameEngine._player
-        player.increase_invincible_frame()
 
         player.facing = direction
-        MOVE_SPEEED = 3
-        for _ in range(MOVE_SPEEED):
+        for _ in range(Settings.PLAYER_MOVE_SPEED):
             if GameEngine._can_entity_move(player) and player.is_alive():
                 player.move()
+
+    @staticmethod
+    def _handle_player_damaged():
+        GameEngine._player.increase_invincible_frame()
 
     # TODO - jak v2 będzie działać, to tą usuniemy (chyba, że nie będzie xd)
     @staticmethod
@@ -282,12 +287,14 @@ class GameEngine:
             if GameEngine.distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
                 if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
                     GameEngine._handle_enter_dungeon()
-            GameEngine._handle_pick_up_items()
+
+        GameEngine._handle_pick_up_items()
 
     @staticmethod
     def _handle_enemies_movement():
         for enemy in GameEngine._hostile_entities:
             enemy.follow_player(GameEngine._player)
+            enemy.increase_animation_frame()
             if GameEngine._can_entity_move(enemy) and not enemy.is_attacking:
                 enemy.move()
             else:
@@ -295,28 +302,29 @@ class GameEngine:
 
     @staticmethod
     def _handle_missiles():
-        to_remove = []
         for missile in GameEngine._missiles:
             missile.increase_animation_frame()
-            if missile.should_animation_end():
-                to_remove.append(missile)
-            if missile.bound_box.colliderect(GameEngine._player.hit_box):
-                GameEngine._player.damage(missile.damage)
-            missile.move()
 
-        for missile in to_remove:
-            GameEngine._missiles.remove(missile)
+            if missile.should_animation_end():
+                GameEngine._missiles.remove(missile)
+
+            if not GameEngine._player.is_damaged and missile.bounding_box.colliderect(GameEngine._player.hit_box):
+                GameEngine._player.damage(missile.damage)
+                GameEngine._player.is_damaged = True
+                GameEngine._missiles.remove(missile)
+
+            missile.move()
 
     @staticmethod
     def _handle_enemies_attack():
         for enemy in GameEngine._hostile_entities:
             if enemy.is_attacking:
                 enemy.decrease_attack_frame()
-                continue
+
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
 
-            if enemy.bounding_box.colliderect(
+            if not enemy.is_attacking and enemy.bounding_box.colliderect(
                     GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
                 enemy.set_attack_frame(45)
                 GameEngine._player.damage(enemy.attack_damage)
@@ -324,14 +332,12 @@ class GameEngine:
 
     @staticmethod
     def _handle_attack_ghost(ghost: HostileEntity):
-        if ghost.is_attacking and ghost.is_following and (
-                (ghost.facing == MapDirection.NORTH or ghost == MapDirection.SOUTH)
-                and abs(GameEngine._player.y - ghost.y) <= 3) or (
-                (ghost.facing == MapDirection.EAST or ghost.facing == MapDirection.WEST)
-                and abs(GameEngine._player.x - ghost.x) <= 3):
+        if not ghost.is_attacking and ghost.is_following and abs(GameEngine._player.y - ghost.y) <= 3 or abs(GameEngine._player.x - ghost.x) <= 3:
             ghost.set_attack_frame(50)
-            if ghost.attack_frame == 20:
-                GameEngine.start_attack_ghost(ghost)
+            ghost.is_attacking = True
+
+        if ghost.attack_frame == 20:
+            GameEngine.start_attack_ghost(ghost)
 
     @staticmethod
     def _handle_peaceful_entities_actions():
@@ -390,13 +396,12 @@ class GameEngine:
         to_remove = []
         for enemy in GameEngine._hostile_entities:
             if not enemy.is_alive():
-                rand = randint(1, 5)
+                rand = randint(1, 3)
                 if rand == 1:
                     GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.COIN))
                 if rand == 2:
                     GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.HEALTH))
                 to_remove.append(enemy)
-                # TODO dodać dropienie na plansze
         for enemy in to_remove:
             GameEngine._hostile_entities.remove(enemy)
 
@@ -472,7 +477,7 @@ class GameEngine:
             return MapDirection.NORTH
         elif abs(delta_x) <= abs(delta_y) and delta_y > 0:
             return MapDirection.SOUTH
-        elif abs(delta_x) > abs(delta_y) and delta_y > 0:
+        elif abs(delta_x) > abs(delta_y) and delta_x > 0:
             return MapDirection.EAST
         else:
             return MapDirection.WEST
