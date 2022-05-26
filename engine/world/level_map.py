@@ -5,6 +5,7 @@ import random
 from typing import List, Optional
 from enum import Enum
 
+from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.hostile_entity import HostileEntity
 from engine.entities.peaceful_entity import PeacefulEntity
 from engine.entities.container import Container
@@ -31,6 +32,7 @@ class LevelMap:
         self._enemies_list = []
         self._friendly_entity_list = []
         self._chests = []
+        self._effects = []
 
         for y in range(self._level_map_height):
             for x in range(self._level_map_width):
@@ -182,7 +184,7 @@ class LevelMap:
                     self._level[y][x] = Block(x, y, "sign", False)
 
                 elif (0, 0, 0) == (r, g, b):
-                    self._level[y][x] = Block(x, y, "sword_stone", False)
+                    self._level[y][x] = Block(x, y, "grass1", True)
 
                 elif (0, 252, 255) == (r, g, b):
                     if image.getpixel((x+1, y)) == (0, 252, 255):
@@ -228,6 +230,10 @@ class LevelMap:
     def chests(self):
         return self._chests
 
+    @property
+    def effects(self):
+        return self._effects
+
     def add_hostile_entity(self, entity: HostileEntity):
         self._enemies_list.append(entity)
 
@@ -236,6 +242,9 @@ class LevelMap:
 
     def add_chest(self, container: Container):
         self._chests.append(container)
+
+    def add_effect(self, effect: ScreenEffect):
+        self._effects.append(effect)
 
     class BlockOrientation(Enum):
         CENTER = 0

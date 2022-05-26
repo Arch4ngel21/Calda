@@ -1,8 +1,13 @@
 import pygame
 
 from engine.collectibles.collectible import Collectible
+from engine.entities.effects.screen_effect import ScreenEffect
+from engine.entities.effects.screen_prompt import ScreenPrompt
+from engine.entities.effects.chest_open_effect import ChestOpenEffect
+from engine.entities.effects.fade_out_effect import FadeOutEffect
 from engine.entities.player import Player
 from engine.entities.hostile_entity import HostileEntity, HostileEntityType
+from engine.entities.container import Container
 from engine.entities.missiles.missile import Missile
 from engine.entities.missiles.ghost_fireball import GhostFireball
 from engine.world.level_map import LevelMap
@@ -249,6 +254,19 @@ class MainScreen:
             if isinstance(missile, GhostFireball):
                 missile.update_image()
             missile.draw(MainScreen.screen)
+
+    @staticmethod
+    def render_containers(container_list: List[Container]):
+        for container in container_list:
+            container.draw(MainScreen.screen)
+
+    @staticmethod
+    def render_effects(effects_list: List[ScreenEffect], font_game_over: pygame.font.Font, font_prompts: pygame.font.Font):
+        for effect in effects_list:
+            if isinstance(effect, ChestOpenEffect) or isinstance(effect, FadeOutEffect):
+                effect.draw(MainScreen.screen)
+            elif isinstance(effect, ScreenPrompt):
+                effect.show(MainScreen.screen, font_game_over, font_prompts)
 
     @staticmethod
     def render_hud(player: Player):

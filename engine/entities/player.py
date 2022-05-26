@@ -13,7 +13,7 @@ class Player(Entity):
     def __init__(self, x: int, y: int, health: int, damage: int):
         super().__init__(x, y, health, damage)
         self._coins: int = 0
-        self._has_sword: bool = True
+        self._has_sword: bool = False
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
@@ -21,7 +21,6 @@ class Player(Entity):
         self._image = ResourceManager.player_walking_left_1
 
     def move(self):
-        # TODO naprawa systemu kolizji jak chodzimy o 3 piksele do przodu
         self._is_walking = True
 
         if self._facing == MapDirection.NORTH:
