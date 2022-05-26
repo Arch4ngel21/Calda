@@ -129,8 +129,10 @@ class GameEngine:
         player.increase_invincible_frame()
 
         player.facing = direction
-        if GameEngine._can_entity_move(player) and player.is_alive():
-            player.move()
+        MOVE_SPEEED = 3
+        for _ in range(MOVE_SPEEED):
+            if GameEngine._can_entity_move(player) and player.is_alive():
+                player.move()
 
     # TODO - jak v2 będzie działać, to tą usuniemy (chyba, że nie będzie xd)
     @staticmethod
