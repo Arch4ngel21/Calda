@@ -87,6 +87,9 @@ class Player(Entity):
             self._image = self._image.copy()
             self._image.fill(pygame.Color(160, 0, 0), special_flags=pygame.BLEND_MAX)
 
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self._image, self._hit_box)
+
     def add_health(self):
         self.heal(2)
 
@@ -99,7 +102,7 @@ class Player(Entity):
 
     def increase_attack_frame(self):
         self._attack_frame += 1
-        if self.attack_frame == 30:
+        if self.attack_frame == 15:
             return True
         if self._attack_frame > 30:
             self._attack_frame = 0

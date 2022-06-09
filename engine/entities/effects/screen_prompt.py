@@ -25,8 +25,6 @@ class ScreenPrompt(ScreenEffect):
                 else:
                     screen.blit(font_prompts.render(self._text, False, (0, 0, 0)), (self._x, self._y))
 
-
-
     @property
     def x(self):
         return self._x

@@ -230,6 +230,7 @@ class MainScreen:
 
     @staticmethod
     def render_player(player: Player):
+        player.decrease_health_bar_frame()
         player.update_image()
         player.add_y_offset()
         player.draw(MainScreen.screen)

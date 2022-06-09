@@ -98,6 +98,7 @@ class GameEngine:
         GameEngine._current_level = GameEngine._world_map.get_level(2, 3)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+        GameEngine._effects = GameEngine._current_level.effects
         GameEngine._is_running = True
 
         GameEngine._font_game_over = pygame.font.Font(os.path.join("resources", "fonts", "THE_LAST_KINGDOM.ttf"), 86)
@@ -146,8 +147,8 @@ class GameEngine:
 
         # PeacefulEntities
         levels[0].add_peaceful_entity(PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
-        p_entity = PeacefulEntity(512, Settings.GAME_WINDOW_HEIGHT - 352, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
-        levels[9].add_effect(ScreenPrompt(512 - 32, Settings.GAME_WINDOW_HEIGHT - 352 - 32, "to enter the dungeon", True, False, "E", p_entity))
+        p_entity = PeacefulEntity(480, Settings.GAME_WINDOW_HEIGHT - 352, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
+        levels[9].add_effect(ScreenPrompt(15*32 - 64, 9*32, "to enter the dungeon", True, False, "E", p_entity))
         levels[9].add_peaceful_entity(p_entity)
         levels[15].add_peaceful_entity(PeacefulEntity(Settings.GAME_WINDOW_WIDTH - 5 * 32, 4 * 32, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
 
@@ -379,6 +380,7 @@ class GameEngine:
         for enemy in GameEngine._hostile_entities:
             enemy.follow_player(GameEngine._player)
             enemy.increase_animation_frame()
+            enemy.decrease_health_bar_frame()
             if GameEngine._can_entity_move(enemy) and not enemy.is_attacking:
                 enemy.move()
             else:
@@ -437,6 +439,7 @@ class GameEngine:
     def _handle_effects():
         to_remove = []
         for effect in GameEngine._effects:
+
             if isinstance(effect, ChestOpenEffect):
                 effect.increase_animation_frame()
                 effect.update_image()
@@ -452,6 +455,8 @@ class GameEngine:
                                 effect.should_show = True
                             else:
                                 effect.should_show = False
+                        elif isinstance(effect.triggerable_entity, PeacefulEntity) and effect.triggerable_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
+                            effect.should_show = True
                         else:
                             effect.should_show = False
                     else:

@@ -187,7 +187,7 @@ class LevelMap:
                     self._level[y][x] = Block(x, y, "grass1", True)
 
                 elif (0, 252, 255) == (r, g, b):
-                    if image.getpixel((x+1, y)) == (0, 252, 255):
+                    if image.getpixel((x+1, y))[:-1] == (0, 252, 255):
                         self._level[y][x] = Block(x, y, "dungeon_entrance_left", False)
                     else:
                         self._level[y][x] = Block(x, y, "dungeon_entrance_right", False)
