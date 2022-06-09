@@ -112,7 +112,7 @@ class GameEngine:
         MainScreen.render_collectibles(GameEngine._items)
         MainScreen.render_containers(GameEngine._chests)
         MainScreen.render_hud(GameEngine._player)
-        MainScreen.render_debug(GameEngine._player, GameEngine._hostile_entities)
+        # MainScreen.render_debug(GameEngine._player, GameEngine._hostile_entities)
         MainScreen.render_effects(GameEngine._effects, GameEngine._font_game_over, GameEngine._font_prompts)
         pygame.display.flip()
 
@@ -133,8 +133,22 @@ class GameEngine:
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 200, 10, 1, HostileEntityType.GHOST))
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 400, 10, 1, HostileEntityType.SLIME))
 
+        levels[2].add_hostile_entity(HostileEntity(300, Settings.GAME_WINDOW_HEIGHT - 500, 5, 1, HostileEntityType.SLIME))
+        levels[3].add_hostile_entity(HostileEntity(256, 288, 5, 1, HostileEntityType.SLIME))
+
+        levels[16].add_hostile_entity(HostileEntity(512, 128, 5, 2, HostileEntityType.GHOST))
+        levels[16].add_hostile_entity(HostileEntity(512, Settings.GAME_WINDOW_HEIGHT - 128, 5, 2, HostileEntityType.GHOST))
+        levels[16].add_hostile_entity(HostileEntity(842, Settings.GAME_WINDOW_HEIGHT - 128, 5, 2, HostileEntityType.GHOST))
+        levels[16].add_hostile_entity(HostileEntity(842, 128, 5, 2, HostileEntityType.GHOST))
+        levels[16].add_hostile_entity(HostileEntity(192, 128, 5, 2, HostileEntityType.GHOST))
+        levels[16].add_hostile_entity(HostileEntity(192, Settings.GAME_WINDOW_HEIGHT - 128, 5, 2, HostileEntityType.GHOST))
+
         # PeacefulEntities
         levels[0].add_peaceful_entity(PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+        p_entity = PeacefulEntity(512, Settings.GAME_WINDOW_HEIGHT - 352, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
+        levels[9].add_effect(ScreenPrompt(512 - 32, Settings.GAME_WINDOW_HEIGHT - 352 - 32, "to enter the dungeon", True, False, "E", p_entity))
+        levels[9].add_peaceful_entity(p_entity)
+        levels[15].add_peaceful_entity(PeacefulEntity(Settings.GAME_WINDOW_WIDTH - 5 * 32, 4 * 32, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
 
         # Chests
         chest = Container(736, Settings.GAME_WINDOW_HEIGHT - 128, ContainerType.STONE_SWORD)
