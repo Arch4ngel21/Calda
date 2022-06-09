@@ -95,7 +95,7 @@ class GameEngine:
         GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
-        GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
+        GameEngine._current_level = GameEngine._world_map.get_level(2, 3)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._is_running = True
@@ -106,6 +106,7 @@ class GameEngine:
     @staticmethod
     def _render_screen():
         MainScreen.render_map(GameEngine._current_level)
+        MainScreen.render_animated_tiles(GameEngine._current_level)
         MainScreen.render_player(GameEngine._player)
         MainScreen.render_enemies(GameEngine._hostile_entities)
         MainScreen.render_missiles(GameEngine._missiles)

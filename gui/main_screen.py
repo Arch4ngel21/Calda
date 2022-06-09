@@ -188,11 +188,11 @@ class MainScreen:
                 elif curr_level.get_block(x, y).block_name == "shore_turn_right_down":
                     block_image = ResourceManager.water_3
                     back_image = ResourceManager.grass_3
-                elif curr_level.get_block(x, y).block_name == "campfire":
-                    block_image = ResourceManager.blank
                 elif curr_level.get_block(x, y).block_name == "sign":
                     block_image = ResourceManager.sign
                     back_image = ResourceManager.path_1
+                elif curr_level.get_block(x, y).block_name == "campfire":
+                    continue
                 elif curr_level.get_block(x, y).block_name == "sword_stone":
                     # TODO - to do usunięcia, jak się zrobi resztę Entity; miecz jest przyjaznym NPC
                     block_image = ResourceManager.stone_with_sword
@@ -212,6 +212,21 @@ class MainScreen:
                 if back_image:
                     MainScreen.screen.blit(back_image, (x * Settings.BLOCK_SIZE, y * Settings.BLOCK_SIZE))
                 MainScreen.screen.blit(block_image, (x * Settings.BLOCK_SIZE, y * Settings.BLOCK_SIZE))
+
+    @staticmethod
+    def render_animated_tiles(curr_level: LevelMap):
+        for y in range(curr_level.level_map_height):
+            for x in range(curr_level.level_map_width):
+
+                if curr_level.get_block(x, y).block_name == "campfire":
+                    block_image = curr_level.get_block(x, y).get_image_from_current_frame(curr_level.world_map_x, curr_level.world_map_y)
+
+                    block_image = pygame.transform.scale(block_image, (64, 64))
+                    back_image = ResourceManager.cobblestone
+                    curr_level.get_block(x, y).increase_animation_frame()
+
+                    MainScreen.screen.blit(back_image, (x * Settings.BLOCK_SIZE, y * Settings.BLOCK_SIZE))
+                    MainScreen.screen.blit(block_image, (x * Settings.BLOCK_SIZE - 16, y * Settings.BLOCK_SIZE - 43))
 
     @staticmethod
     def render_player(player: Player):

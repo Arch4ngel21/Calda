@@ -172,7 +172,7 @@ class LevelMap:
                         raise WrongBlockOrientation
 
                 elif (224, 42, 0) == (r, g, b):
-                    self._level[y][x] = Block(x, y, "campfire", False)
+                    self._level[y][x] = Block(x, y, "campfire", False, True)
 
                 elif (116, 87, 0) == (r, g, b):
                     self._level[y][x] = Block(x, y, "tree_bottom", False)
