@@ -20,6 +20,7 @@ from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.effects.screen_prompt import ScreenPrompt
 from engine.entities.effects.fade_out_effect import FadeOutEffect
 from engine.entities.effects.chest_open_effect import ChestOpenEffect
+from engine.entities.effects.healing_effect import HealingEffect
 from engine.world.map import Map
 from engine.world.level_map import LevelMap
 from utilities.map_direction import MapDirection
@@ -95,10 +96,11 @@ class GameEngine:
         GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
-        GameEngine._current_level = GameEngine._world_map.get_level(4, 2)
+        GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._effects = GameEngine._current_level.effects
+        GameEngine._chests = GameEngine._current_level.chests
         GameEngine._is_running = True
 
         GameEngine._font_game_over = pygame.font.Font(os.path.join("resources", "fonts", "THE_LAST_KINGDOM.ttf"), 86)
@@ -146,11 +148,17 @@ class GameEngine:
         levels[16].add_hostile_entity(HostileEntity(192, Settings.GAME_WINDOW_HEIGHT - 128, 5, 2, HostileEntityType.GHOST))
 
         # PeacefulEntities
-        levels[0].add_peaceful_entity(PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+        p_entity = PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH)
+        levels[0].add_effect(HealingEffect(GameEngine._player, p_entity))
+        levels[0].add_peaceful_entity(p_entity)
         p_entity = PeacefulEntity(480, Settings.GAME_WINDOW_HEIGHT - 352, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
         levels[9].add_effect(ScreenPrompt(15*32 - 64, 9*32, "to enter the dungeon", True, False, "E", p_entity))
         levels[9].add_peaceful_entity(p_entity)
         levels[15].add_peaceful_entity(PeacefulEntity(Settings.GAME_WINDOW_WIDTH - 5 * 32, 4 * 32, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+
+        p_entity = PeacefulEntity(15*32, Settings.WINDOW_HEIGHT - 32, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
+        levels[15].add_effect(ScreenPrompt(15*32 - 64, Settings.WINDOW_HEIGHT - 80, "to leave the dungeon", True, False, triggerable_entity=p_entity))
+        levels[15].add_peaceful_entity(p_entity)
 
         # Chests
         chest = Container(736, Settings.GAME_WINDOW_HEIGHT - 128, ContainerType.STONE_SWORD)
@@ -371,7 +379,8 @@ class GameEngine:
         for peaceful_entity in GameEngine._peaceful_entities:
             if GameEngine.distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
                 if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
-                    GameEngine._handle_enter_dungeon()
+                    if GameEngine._current_level.world_map_x == 2 and GameEngine._current_level.world_map_y == 3:
+                        GameEngine._handle_enter_dungeon()
 
         GameEngine._handle_pick_up_items()
 
@@ -465,6 +474,17 @@ class GameEngine:
             elif isinstance(effect, FadeOutEffect):
                 effect.increase_animation_frame()
 
+            elif isinstance(effect, HealingEffect):
+                if GameEngine.distance(GameEngine._player.x, GameEngine._player.y, effect.triggerable_entity.x,
+                                       effect.triggerable_entity.y) > 128:
+                    effect.increase_away_frame()
+                else:
+                    effect.reset_away_frame()
+                    effect.should_show = True
+
+                if effect.away_frame == effect.effect_duration:
+                    effect.should_show = False
+
         for effect in to_remove:
             GameEngine._effects.remove(effect)
 
@@ -536,19 +556,22 @@ class GameEngine:
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
             GameEngine._items.clear()
-            GameEngine._effects.clear()
+            GameEngine._effects = GameEngine._current_level.effects
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
         elif player.y >= Settings.GAME_WINDOW_HEIGHT - player._hit_box.height:
             GameEngine._current_level = GameEngine._world_map.get_level(GameEngine._current_level.world_map_x,
                                                                         GameEngine._current_level.world_map_y - 1)
-            player.y = 1
+            if GameEngine._current_level.world_map_x == 2 and GameEngine._current_level.world_map_y == 3:
+                player.y = 9 * 32
+            else:
+                player.y = 1
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
             GameEngine._items.clear()
-            GameEngine._effects.clear()
+            GameEngine._effects = GameEngine._current_level.effects
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
@@ -560,16 +583,33 @@ class GameEngine:
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
             GameEngine._items.clear()
-            GameEngine._effects.clear()
+            GameEngine._effects = GameEngine._current_level.effects
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
     @staticmethod
     def _handle_enter_dungeon():
-        # TODO - brzydkie rozwiazanie tego problemu
-        #  (gracz pojawia sie na granicy mapy, przez co teleportuje go na kolejny poziom)
-        #  dziala, ale mozna to poprawic
-        GameEngine._player.y = 0
+        GameEngine._current_level = GameEngine._world_map.get_level(2, 4)
+        GameEngine._player.y = Settings.GAME_WINDOW_HEIGHT - 128
+        GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+        GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+        GameEngine._chests = GameEngine._current_level.chests
+        GameEngine._effects = GameEngine._current_level.effects
+        GameEngine._items.clear()
+        GameEngine._prompts.clear()
+        GameEngine._missiles.clear()
+
+    @staticmethod
+    def _handle_leave_dungeon():
+        GameEngine._current_level = GameEngine._world_map.get_level(2, 3)
+        GameEngine._player.y = 9 * 32
+        GameEngine._hostile_entities = GameEngine._current_level.enemies_list
+        GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
+        GameEngine._chests = GameEngine._current_level.chests
+        GameEngine._effects = GameEngine._current_level.effects
+        GameEngine._items.clear()
+        GameEngine._prompts.clear()
+        GameEngine._missiles.clear()
 
     @staticmethod
     def start_attack_ghost(enemy: HostileEntity):

@@ -5,6 +5,7 @@ from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.effects.screen_prompt import ScreenPrompt
 from engine.entities.effects.chest_open_effect import ChestOpenEffect
 from engine.entities.effects.fade_out_effect import FadeOutEffect
+from engine.entities.effects.healing_effect import HealingEffect
 from engine.entities.player import Player
 from engine.entities.hostile_entity import HostileEntity, HostileEntityType
 from engine.entities.container import Container
@@ -283,6 +284,10 @@ class MainScreen:
                 effect.draw(MainScreen.screen)
             elif isinstance(effect, ScreenPrompt):
                 effect.show(MainScreen.screen, font_game_over, font_prompts)
+            elif isinstance(effect, HealingEffect):
+                if effect.should_show:
+                    effect.update_image()
+                    effect.draw(MainScreen.screen)
 
     @staticmethod
     def render_hud(player: Player):

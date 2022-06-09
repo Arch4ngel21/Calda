@@ -98,6 +98,17 @@ class ResourceManager:
     campfire_outside_7 = pygame.image.load(r"./resources/tiles/campfire_outside_7.png")
     campfire_outside_8 = pygame.image.load(r"./resources/tiles/campfire_outside_8.png")
 
+    healing_effect_1 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_1.png")
+    healing_effect_2 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_2.png")
+    healing_effect_3 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_3.png")
+    healing_effect_4 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_4.png")
+    healing_effect_5 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_5.png")
+    healing_effect_6 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_6.png")
+    healing_effect_7 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_7.png")
+    healing_effect_8 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_8.png")
+    healing_effect_9 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_9.png")
+    healing_effect_10 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_10.png")
+
     player_movement[1][0][0] = player_standing_left_1 = pygame.image.load(r"./resources/entities/player_standing_left_1.png")
     player_movement[1][0][1] = player_standing_left_2 = pygame.image.load(r"./resources/entities/player_standing_left_2.png")
     player_movement[1][1][0] = player_standing_left_sword_1 = pygame.image.load(r"./resources/entities/player_standing_left_sword_1.png")
