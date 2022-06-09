@@ -95,7 +95,7 @@ class GameEngine:
         GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
-        GameEngine._current_level = GameEngine._world_map.get_level(2, 3)
+        GameEngine._current_level = GameEngine._world_map.get_level(4, 2)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._effects = GameEngine._current_level.effects

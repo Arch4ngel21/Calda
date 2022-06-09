@@ -191,7 +191,6 @@ class LevelMap:
                         self._level[y][x] = Block(x, y, "dungeon_entrance_left", False)
                     else:
                         self._level[y][x] = Block(x, y, "dungeon_entrance_right", False)
-
                 else:
                     self._level[y][x] = Block(x, y, "error_block", False)
 
@@ -336,48 +335,43 @@ class LevelMap:
         elif (195, 193, 0) == (r, g, b):
             water_rgb_value = (0, 83, 197)
 
-            if x-1 >= 0 and image.getpixel((x-1, y)) == water_rgb_value:
+            if x-1 >= 0 and image.getpixel((x-1, y))[:-1] == water_rgb_value:
                 check_square[0][1] = True
-            if x-1 >= 0 and y-1 >= 0 and image.getpixel((x-1, y-1)) == water_rgb_value:
+            if x-1 >= 0 and y-1 >= 0 and image.getpixel((x-1, y-1))[:-1] == water_rgb_value:
                 check_square[0][2] = True
-            if y-1 >= 0 and image.getpixel((x, y-1)) == water_rgb_value:
+            if y-1 >= 0 and image.getpixel((x, y-1))[:-1] == water_rgb_value:
                 check_square[1][2] = True
-            if x+1 < level_map.world_map_x and y-1 >= 0 and image.getpixel((x+1, y-1)) == water_rgb_value:
+            if x+1 < level_map.level_map_width and y-1 >= 0 and image.getpixel((x+1, y-1))[:-1] == water_rgb_value:
                 check_square[2][2] = True
-            if x+1 < level_map.world_map_x and image.getpixel((x+1, y)) == water_rgb_value:
+            if x+1 < level_map.level_map_width and image.getpixel((x+1, y))[:-1] == water_rgb_value:
                 check_square[2][1] = True
-            if x+1 < level_map.world_map_x and y+1 < level_map.world_map_y and image.getpixel((x+1, y+1)) == water_rgb_value:
+            if x+1 < level_map.level_map_width and y+1 < level_map.level_map_height and image.getpixel((x+1, y+1))[:-1] == water_rgb_value:
                 check_square[2][0] = True
-            if y+1 < level_map.world_map_y and image.getpixel((x, y+1)) == water_rgb_value:
+            if y+1 < level_map.level_map_height and image.getpixel((x, y+1))[:-1] == water_rgb_value:
                 check_square[1][0] = True
-            if x-1 >= 0 and y+1 < level_map.world_map_y and image.getpixel((x-1, y+1)) == water_rgb_value:
+            if x-1 >= 0 and y+1 < level_map.level_map_height and image.getpixel((x-1, y+1))[:-1] == water_rgb_value:
                 check_square[0][0] = True
 
-            if level_map._world_map_x == 2 and level_map._world_map_y == 0:
-                print(f"Block: {x, y}")
-                for lane in check_square:
-                    print(lane)
-
             if check_square[1][2] and check_square[2][2] and check_square[2][1]:
-                return LevelMap.BlockOrientation.TURN_RIGHT_UP
+                return LevelMap.BlockOrientation.TURN_LEFT_DOWN
 
             if check_square[2][1] and check_square[2][0] and check_square[1][0]:
                 return LevelMap.BlockOrientation.TURN_RIGHT_DOWN
 
             if check_square[1][0] and check_square[0][0] and check_square[0][1]:
-                return LevelMap.BlockOrientation.TURN_LEFT_DOWN
+                return LevelMap.BlockOrientation.TURN_RIGHT_UP
 
             if check_square[0][1] and check_square[0][2] and check_square[1][2]:
                 return LevelMap.BlockOrientation.TURN_LEFT_UP
 
             if not check_square[2][1] and not check_square[1][2] and check_square[2][2]:
-                return LevelMap.BlockOrientation.CORNER_RIGHT_UP
+                return LevelMap.BlockOrientation.CORNER_LEFT_DOWN
 
             if not check_square[2][1] and not check_square[1][0] and check_square[2][0]:
                 return LevelMap.BlockOrientation.CORNER_RIGHT_DOWN
 
             if not check_square[0][1] and not check_square[1][0] and check_square[0][0]:
-                return LevelMap.BlockOrientation.CORNER_LEFT_DOWN
+                return LevelMap.BlockOrientation.CORNER_RIGHT_UP
 
             if not check_square[0][1] and not check_square[1][2] and check_square[0][2]:
                 return LevelMap.BlockOrientation.CORNER_LEFT_UP
@@ -386,13 +380,13 @@ class LevelMap:
                 return LevelMap.BlockOrientation.STRAIGHT_LEFT
 
             if check_square[1][0]:
-                return LevelMap.BlockOrientation.STRAIGHT_UP
+                return LevelMap.BlockOrientation.STRAIGHT_DOWN
 
             if check_square[0][1]:
                 return LevelMap.BlockOrientation.STRAIGHT_RIGHT
 
             if check_square[1][2]:
-                return LevelMap.BlockOrientation.STRAIGHT_DOWN
+                return LevelMap.BlockOrientation.STRAIGHT_UP
 
             else:
                 return LevelMap.BlockOrientation.CENTER
