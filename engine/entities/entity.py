@@ -40,11 +40,9 @@ class Entity(pygame.sprite.Sprite):
     def increase_invincible_frame(self):
         if self._is_damaged:
             self._invincible_frame += 1
-            if self._invincible_frame == 30:
+            if self._invincible_frame == 50:
                 self._is_damaged = False
                 self._invincible_frame = 0
-
-
 
     @property
     def facing(self):
@@ -87,4 +85,16 @@ class Entity(pygame.sprite.Sprite):
     @property
     def attack_damage(self) -> int:
         return self._damage
+
+    @property
+    def health(self) -> int:
+        return self._health
+
+    @health.setter
+    def health(self, value: int):
+        self._health = value
+
+    @property
+    def max_health(self):
+        return self._max_health
 

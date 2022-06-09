@@ -2,7 +2,8 @@ import math
 from random import randint
 import sys
 import pygame
-from typing import List
+import os
+from typing import List, Optional
 
 from engine.entities.hostile_entity import HostileEntity
 from engine.entities.hostile_entity import HostileEntityType
@@ -17,6 +18,7 @@ from engine.collectibles.collectible import ItemType
 from engine.entities.missiles.missile import Missile
 from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.effects.screen_prompt import ScreenPrompt
+from engine.entities.effects.fade_out_effect import FadeOutEffect
 from engine.entities.effects.chest_open_effect import ChestOpenEffect
 from engine.world.map import Map
 from engine.world.level_map import LevelMap
@@ -29,7 +31,6 @@ from gui.main_screen import MainScreen
 
 
 class GameEngine:
-    # TODO niepotrzebnie to jets chyba klasa, można po prostu metode main zrobić
     _initialized = False
 
     _keys = [False for _ in range(123)]  # tablica przycisków
@@ -46,6 +47,9 @@ class GameEngine:
     _current_level: LevelMap = None
     _clock = None
     _is_running = False
+
+    _font_game_over: Optional[pygame.font.Font] = None
+    _font_prompts: Optional[pygame.font.Font] = None
 
     @staticmethod
     def run():
@@ -72,23 +76,23 @@ class GameEngine:
                     except KeyCodeError:
                         print("Not accepted key")
 
-            GameEngine._handle_key_inputs()
-            GameEngine._handle_player_attack()
-            GameEngine._handle_pick_up_items()
-            GameEngine._handle_level_change()
-            GameEngine._handle_enemies_movement()
-            GameEngine._handle_enemies_attack()
-            GameEngine._handle_peaceful_entities_actions()
+            if GameEngine._is_running:
+                GameEngine._handle_key_inputs()
+                GameEngine._handle_player_attack()
+                GameEngine._handle_player_damaged()
+                GameEngine._handle_level_change()
+                GameEngine._handle_enemies_movement()
+                GameEngine._handle_enemies_attack()
+                GameEngine._handle_peaceful_entities_actions()
+                GameEngine._handle_missiles()
+                GameEngine._handle_enemies_drop()
             GameEngine._handle_effects()
-            GameEngine._handle_missiles()
-            GameEngine._handle_enemies_drop()
             GameEngine._render_screen()
-
 
     @staticmethod
     def start_engine():
-        # TODO
-        GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 10, 3)
+        pygame.init()
+        GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
         GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
@@ -96,12 +100,20 @@ class GameEngine:
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._is_running = True
 
+        GameEngine._font_game_over = pygame.font.Font(os.path.join("resources", "fonts", "THE_LAST_KINGDOM.ttf"), 86)
+        GameEngine._font_prompts = pygame.font.SysFont("helvetica.ttf", 20)
+
     @staticmethod
     def _render_screen():
         MainScreen.render_map(GameEngine._current_level)
         MainScreen.render_player(GameEngine._player)
         MainScreen.render_enemies(GameEngine._hostile_entities)
-        MainScreen.render_debug(GameEngine._player)
+        MainScreen.render_missiles(GameEngine._missiles)
+        MainScreen.render_collectibles(GameEngine._items)
+        MainScreen.render_containers(GameEngine._chests)
+        MainScreen.render_hud(GameEngine._player)
+        MainScreen.render_debug(GameEngine._player, GameEngine._hostile_entities)
+        MainScreen.render_effects(GameEngine._effects, GameEngine._font_game_over, GameEngine._font_prompts)
         pygame.display.flip()
 
     @staticmethod
@@ -117,22 +129,85 @@ class GameEngine:
                   LevelMap(1, 4, ResourceManager.level_1_4), LevelMap(2, 4, ResourceManager.level_2_4),
                   LevelMap(3, 4, ResourceManager.level_3_4), LevelMap(4, 4, ResourceManager.level_4_4)]
 
+        #HostileEntities
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 200, 10, 1, HostileEntityType.GHOST))
         levels[0].add_hostile_entity(HostileEntity(200, Settings.WINDOW_HEIGHT - 400, 10, 1, HostileEntityType.SLIME))
+
+        # PeacefulEntities
+        levels[0].add_peaceful_entity(PeacefulEntity(720, 144, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+
+        # Chests
+        chest = Container(736, Settings.GAME_WINDOW_HEIGHT - 128, ContainerType.STONE_SWORD)
+        levels[1].add_effect(ScreenPrompt(chest.x-32, chest.y-32, "to take the sword", True, False, "E", chest))
+        levels[1].add_chest(chest)
+
+        chest = Container(608, Settings.GAME_WINDOW_HEIGHT - 160, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        chest.include_item(ItemType.HEALTH)
+        levels[3].add_chest(chest)
+
+        chest = Container(704, Settings.GAME_WINDOW_HEIGHT - 192, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[4].add_chest(chest)
+
+        chest = Container(704, Settings.GAME_WINDOW_HEIGHT - 544, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[11].add_chest(chest)
+
+        chest = Container(32, 32, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[9].add_chest(chest)
+
+        chest = Container(192, 96, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[17].add_chest(chest)
+
+        chest = Container(416, 96, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[17].add_chest(chest)
+
+        chest = Container(640, 96, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[17].add_chest(chest)
+
+        chest = Container(128, 128, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[12].add_chest(chest)
+
+        chest = Container(800, Settings.GAME_WINDOW_HEIGHT - 160, ContainerType.CHEST)
+        chest.include_item(ItemType.COIN)
+        levels[13].add_chest(chest)
+
+        # Prompts
+        GameEngine._gen_prompts_for_containers(levels)
 
         for level in levels:
             GameEngine._world_map.add_level(level)
 
     @staticmethod
+    def _gen_prompts_for_containers(levels: List[LevelMap]):
+        for level in levels:
+            for chest in level.chests:
+                if not chest.container_type == ContainerType.STONE_SWORD:
+                    level.add_effect(ScreenPrompt(chest.x-32, chest.y-32, "to open chest", True, False, "E", chest))
+
+    @staticmethod
     def _handle_player_movement(direction: MapDirection):
         player: Player = GameEngine._player
-        player.increase_invincible_frame()
 
         player.facing = direction
-        MOVE_SPEEED = 3
-        for _ in range(MOVE_SPEEED):
+        for _ in range(Settings.PLAYER_MOVE_SPEED):
             if GameEngine._can_entity_move(player) and player.is_alive():
                 player.move()
+
+    @staticmethod
+    def _handle_player_damaged():
+        if not GameEngine._player.is_alive() and GameEngine._is_running:
+            GameEngine._is_running = False
+            GameEngine._effects.append(FadeOutEffect())
+            GameEngine._effects.append(ScreenPrompt(400, Settings.GAME_WINDOW_HEIGHT // 2 - 64, "Game over", False, True))
+
+        GameEngine._player.increase_invincible_frame()
 
     # TODO - jak v2 będzie działać, to tą usuniemy (chyba, że nie będzie xd)
     @staticmethod
@@ -267,14 +342,13 @@ class GameEngine:
         for chest in GameEngine._chests:
             if not chest.is_opened and GameEngine.distance(player.x, player.y, chest.x, chest.y) <= 50:
                 chest.is_opened = True
+                chest.update_image()
                 for i, item in enumerate(chest.inventory):
-                    if item.item_type == ItemType.COIN:
+                    if item == ItemType.COIN:
                         player.add_coin()
-                    if item.item_type == ItemType.HEALTH:
+                    if item == ItemType.HEALTH:
                         player.add_health()
-                    """czy na pewno chcemy to robić w zależności od pozycji gracza, a nie skrzyni?"""
-                    GameEngine._effects.append(
-                        ChestOpenEffect(player.x + i * 10, player.y - i * 10 - 16, item.item_type))
+                    GameEngine._effects.append(ChestOpenEffect(player.x + i * 10, player.y - i * 10 - 16, item))
                 if chest.container_type == ContainerType.STONE_SWORD and not player.has_sword:
                     player.has_sword = True
 
@@ -282,12 +356,14 @@ class GameEngine:
             if GameEngine.distance(player.x, player.y, peaceful_entity.x, peaceful_entity.y) <= 50:
                 if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
                     GameEngine._handle_enter_dungeon()
-            GameEngine._handle_pick_up_items()
+
+        GameEngine._handle_pick_up_items()
 
     @staticmethod
     def _handle_enemies_movement():
         for enemy in GameEngine._hostile_entities:
             enemy.follow_player(GameEngine._player)
+            enemy.increase_animation_frame()
             if GameEngine._can_entity_move(enemy) and not enemy.is_attacking:
                 enemy.move()
             else:
@@ -295,28 +371,29 @@ class GameEngine:
 
     @staticmethod
     def _handle_missiles():
-        to_remove = []
         for missile in GameEngine._missiles:
             missile.increase_animation_frame()
-            if missile.should_animation_end():
-                to_remove.append(missile)
-            if missile.bound_box.colliderect(GameEngine._player.hit_box):
-                GameEngine._player.damage(missile.damage)
-            missile.move()
 
-        for missile in to_remove:
-            GameEngine._missiles.remove(missile)
+            if missile.should_animation_end():
+                GameEngine._missiles.remove(missile)
+
+            if not GameEngine._player.is_damaged and missile.bounding_box.colliderect(GameEngine._player.hit_box):
+                GameEngine._player.damage(missile.damage)
+                GameEngine._player.is_damaged = True
+                GameEngine._missiles.remove(missile)
+
+            missile.move()
 
     @staticmethod
     def _handle_enemies_attack():
         for enemy in GameEngine._hostile_entities:
             if enemy.is_attacking:
                 enemy.decrease_attack_frame()
-                continue
+
             if enemy.hostile_entity_type == HostileEntityType.GHOST:
                 GameEngine._handle_attack_ghost(enemy)
 
-            if enemy.bounding_box.colliderect(
+            if not enemy.is_attacking and enemy.bounding_box.colliderect(
                     GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
                 enemy.set_attack_frame(45)
                 GameEngine._player.damage(enemy.attack_damage)
@@ -324,14 +401,12 @@ class GameEngine:
 
     @staticmethod
     def _handle_attack_ghost(ghost: HostileEntity):
-        if ghost.is_attacking and ghost.is_following and (
-                (ghost.facing == MapDirection.NORTH or ghost == MapDirection.SOUTH)
-                and abs(GameEngine._player.y - ghost.y) <= 3) or (
-                (ghost.facing == MapDirection.EAST or ghost.facing == MapDirection.WEST)
-                and abs(GameEngine._player.x - ghost.x) <= 3):
+        if not ghost.is_attacking and ghost.is_following and abs(GameEngine._player.y - ghost.y) <= 3 or abs(GameEngine._player.x - ghost.x) <= 3:
             ghost.set_attack_frame(50)
-            if ghost.attack_frame == 20:
-                GameEngine.start_attack_ghost(ghost)
+            ghost.is_attacking = True
+
+        if ghost.attack_frame == 20:
+            GameEngine.start_attack_ghost(ghost)
 
     @staticmethod
     def _handle_peaceful_entities_actions():
@@ -349,9 +424,27 @@ class GameEngine:
         for effect in GameEngine._effects:
             if isinstance(effect, ChestOpenEffect):
                 effect.increase_animation_frame()
+                effect.update_image()
                 effect.move()
                 if effect.animation_frame == effect.effect_duration:
                     to_remove.append(effect)
+
+            elif isinstance(effect, ScreenPrompt):
+                if effect.triggerable:
+                    if GameEngine.distance(GameEngine._player.x, GameEngine._player.y, effect.triggerable_entity.x, effect.triggerable_entity.y) <= 50:
+                        if isinstance(effect.triggerable_entity, Container):
+                            if not effect.triggerable_entity.is_opened:
+                                effect.should_show = True
+                            else:
+                                effect.should_show = False
+                        else:
+                            effect.should_show = False
+                    else:
+                        effect.should_show = False
+
+            elif isinstance(effect, FadeOutEffect):
+                effect.increase_animation_frame()
+
         for effect in to_remove:
             GameEngine._effects.remove(effect)
 
@@ -390,13 +483,12 @@ class GameEngine:
         to_remove = []
         for enemy in GameEngine._hostile_entities:
             if not enemy.is_alive():
-                rand = randint(1, 5)
+                rand = randint(1, 3)
                 if rand == 1:
                     GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.COIN))
                 if rand == 2:
                     GameEngine._items.append(Collectible(enemy.x, enemy.y, ItemType.HEALTH))
                 to_remove.append(enemy)
-                # TODO dodać dropienie na plansze
         for enemy in to_remove:
             GameEngine._hostile_entities.remove(enemy)
 
@@ -411,8 +503,8 @@ class GameEngine:
             GameEngine._hostile_entities = GameEngine._current_level.enemies_list
             GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
             GameEngine._chests = GameEngine._current_level.chests
+            GameEngine._effects = GameEngine._current_level.effects
             GameEngine._items.clear()
-            GameEngine._effects.clear()
             GameEngine._prompts.clear()
             GameEngine._missiles.clear()
 
@@ -472,7 +564,7 @@ class GameEngine:
             return MapDirection.NORTH
         elif abs(delta_x) <= abs(delta_y) and delta_y > 0:
             return MapDirection.SOUTH
-        elif abs(delta_x) > abs(delta_y) and delta_y > 0:
+        elif abs(delta_x) > abs(delta_y) and delta_x > 0:
             return MapDirection.EAST
         else:
             return MapDirection.WEST

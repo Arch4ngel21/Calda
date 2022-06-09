@@ -2,11 +2,14 @@ import pygame
 
 from utilities.map_direction import MapDirection
 from utilities.settings import Settings
+from typing import Optional
 
 
-class Missile:
+class Missile(pygame.sprite.Sprite):
     BOX_SIZE = 8
+
     def __init__(self, x: int, y: int, velocity: int, facing: MapDirection):
+        super().__init__()
         self._x: int = x
         self._y: int = y
         self._start_x: int = x
@@ -16,9 +19,14 @@ class Missile:
         self._facing: MapDirection = facing
         self._lifespan: int
         self._damage: int
-        self._bound_box: pygame.Rect
+        self._bounding_box: Optional[pygame.Rect] = None
+        self._image: pygame.image = None
+
     def increase_animation_frame(self):
-        pass
+        self._animation_frame += 1
+
+        if self._animation_frame % 18 == 0:
+            self._animation_frame = 0
 
     def should_animation_end(self) -> bool:
         return abs(self._x - self._start_x) >= self._lifespan*32 or abs(self._y-self._start_y) >= self._lifespan*32 or\
@@ -34,7 +42,10 @@ class Missile:
             self._y += self._velocity
         if self._facing == MapDirection.WEST and self._x - self._velocity >= 0:
             self._x -= self._velocity
-        self._bound_box.update(self.x, self.y, self.BOX_SIZE, self.BOX_SIZE)
+        self._bounding_box.update(self.x, self.y, self.BOX_SIZE, self.BOX_SIZE)
+
+    def draw(self, screen: pygame.Surface):
+        screen.blit(self._image, self._bounding_box)
 
     @property
     def x(self) -> int:
@@ -57,9 +68,9 @@ class Missile:
         self._y = value
 
     @property
-    def bound_box(self) -> pygame.Rect:
-        return self._bound_box
+    def bounding_box(self) -> pygame.Rect:
+        return self._bounding_box
 
     @property
     def damage(self) -> int:
-        return self.damage
+        return self._damage

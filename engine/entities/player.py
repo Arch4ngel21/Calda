@@ -1,4 +1,5 @@
 import pygame
+import math
 from utilities.map_direction import MapDirection
 from utilities.resource_manager import ResourceManager
 from engine.entities.entity import Entity
@@ -12,7 +13,7 @@ class Player(Entity):
     def __init__(self, x: int, y: int, health: int, damage: int):
         super().__init__(x, y, health, damage)
         self._coins: int = 0
-        self._has_sword: bool = True
+        self._has_sword: bool = False
         self._bounding_box: pygame.Rect = pygame.Rect(x, y, self.HIT_BOX_SIZE, self.HIT_BOX_SIZE)
         self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
@@ -20,7 +21,6 @@ class Player(Entity):
         self._image = ResourceManager.player_walking_left_1
 
     def move(self):
-        # TODO naprawa systemu kolizji jak chodzimy o 3 piksele do przodu
         self._is_walking = True
 
         if self._facing == MapDirection.NORTH:
@@ -49,22 +49,11 @@ class Player(Entity):
             self._hit_box.update(self._x, self._y, self.HIT_BOX_VERTICAL, self.HIT_BOX_SIZE)
 
         self.increase_animation_frame()
-        self.update_image()
+        # self.update_image()
 
     def update_image(self):
-        if self._is_damaged:
-            if self._facing == MapDirection.NORTH:
-                self._image = ResourceManager.player_walking_back_1
-            elif self._facing == MapDirection.SOUTH:
-                self._image = ResourceManager.player_walking_front_1
-            elif self._facing == MapDirection.WEST:
-                self._image = ResourceManager.player_walking_left_1
-            else:
-                self._image = pygame.transform.flip(ResourceManager.player_walking_left_1, True, False)
 
-            # TODO - Y Offset
-
-        elif self._attack_frame:
+        if self._attack_frame:
             if self._attack_frame > 20:
                 image_version = 0
             elif self._attack_frame > 10:
@@ -93,6 +82,10 @@ class Player(Entity):
                 self._image = ResourceManager.player_movement[self._facing.value + 3][self._has_sword][image_version]
             else:
                 self._image = ResourceManager.player_movement[self._facing.value][self._has_sword][image_version]
+
+        if self.is_damaged:
+            self._image = self._image.copy()
+            self._image.fill(pygame.Color(160, 0, 0), special_flags=pygame.BLEND_MAX)
 
     def add_health(self):
         self.heal(2)
@@ -152,3 +145,16 @@ class Player(Entity):
     @is_walking.setter
     def is_walking(self, value: bool):
         self._is_walking = value
+
+    def add_y_offset(self):
+        self._hit_box.y -= self.compute_y_offset_damaged()
+
+    def del_y_offset(self):
+        self._hit_box.y += self.compute_y_offset_damaged()
+
+    def compute_y_offset_damaged(self) -> int:
+        if not self._is_damaged:
+            return 0
+
+        return int(round(16 * math.sin(self._invincible_frame / 50.0 * math.pi)))
+

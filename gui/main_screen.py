@@ -1,13 +1,21 @@
 import pygame
 
+from engine.collectibles.collectible import Collectible
+from engine.entities.effects.screen_effect import ScreenEffect
+from engine.entities.effects.screen_prompt import ScreenPrompt
+from engine.entities.effects.chest_open_effect import ChestOpenEffect
+from engine.entities.effects.fade_out_effect import FadeOutEffect
 from engine.entities.player import Player
 from engine.entities.hostile_entity import HostileEntity, HostileEntityType
+from engine.entities.container import Container
+from engine.entities.missiles.missile import Missile
+from engine.entities.missiles.ghost_fireball import GhostFireball
 from engine.world.level_map import LevelMap
 from utilities.resource_manager import ResourceManager
 from utilities.settings import Settings
 from utilities.map_direction import MapDirection
 
-from typing import List
+from typing import List, Optional
 
 
 class MainScreen:
@@ -207,19 +215,105 @@ class MainScreen:
 
     @staticmethod
     def render_player(player: Player):
+        player.update_image()
+        player.add_y_offset()
         player.draw(MainScreen.screen)
+        player.del_y_offset()
 
     @staticmethod
-    def render_debug(player: Player):
+    def render_debug(player: Player, enemies_list: List[HostileEntity]):
         MainScreen.screen.blit(ResourceManager.piksel, player._hit_box)
         pygame.draw.rect(MainScreen.screen, (0, 0, 255), (player._hit_box.x, player._hit_box.y, player._hit_box.width, player._hit_box.height), 1)
         pygame.draw.rect(MainScreen.screen, (255, 0, 0), (player._bounding_box.x, player._bounding_box.y, player._bounding_box.width, player._bounding_box.height), 1)
 
+        for enemy in enemies_list:
+            pygame.draw.rect(MainScreen.screen, (0, 0, 255), (enemy.hit_box.x, enemy.hit_box.y, enemy.hit_box.width, enemy.hit_box.height), 1)
+            pygame.draw.rect(MainScreen.screen, (255, 0, 0), (enemy.bounding_box.x, enemy.bounding_box.y, enemy.bounding_box.width, enemy.bounding_box.height), 1)
+
+            if enemy.hostile_entity_type == HostileEntityType.SLIME:
+                pygame.draw.rect(MainScreen.screen, (0, 255, 0), (enemy.bounding_box.x-256, enemy.bounding_box.y-256, enemy.bounding_box.width+512, enemy.bounding_box.height+512), 1)
+            elif enemy.hostile_entity_type == HostileEntityType.GHOST:
+                pygame.draw.rect(MainScreen.screen, (0, 255, 0), (enemy.bounding_box.x-320, enemy.bounding_box.y-320, enemy.bounding_box.width+640, enemy.bounding_box.height+640), 1)
+
     @staticmethod
     def render_enemies(enemies_list: List[HostileEntity]):
         for enemy in enemies_list:
+            enemy.update_image()
+            enemy.add_y_offset()
             enemy.draw(MainScreen.screen)
+            enemy.del_y_offset()
 
+    @staticmethod
+    def render_collectibles(collectibles_list: List[Collectible]):
+        for collect in collectibles_list:
+            collect.draw(MainScreen.screen)
+
+    @staticmethod
+    def render_missiles(missiles_list: List[Missile]):
+        for missile in missiles_list:
+            if isinstance(missile, GhostFireball):
+                missile.update_image()
+            missile.draw(MainScreen.screen)
+
+    @staticmethod
+    def render_containers(container_list: List[Container]):
+        for container in container_list:
+            container.draw(MainScreen.screen)
+
+    @staticmethod
+    def render_effects(effects_list: List[ScreenEffect], font_game_over: pygame.font.Font, font_prompts: pygame.font.Font):
+        for effect in effects_list:
+            if isinstance(effect, ChestOpenEffect) or isinstance(effect, FadeOutEffect):
+                effect.draw(MainScreen.screen)
+            elif isinstance(effect, ScreenPrompt):
+                effect.show(MainScreen.screen, font_game_over, font_prompts)
+
+    @staticmethod
+    def render_hud(player: Player):
+        pygame.draw.rect(MainScreen.screen, (0, 0, 0), (Settings.GAME_WINDOW_WIDTH, 0,
+                                                        Settings.WINDOW_WIDTH - Settings.GAME_WINDOW_WIDTH, Settings.WINDOW_HEIGHT))
+
+        remain_health = player.health
+        empty_health = player.max_health
+
+        if empty_health % 4 != 0:
+            empty_health += 4 - empty_health % 4
+
+        if remain_health % 4 != 0:
+            empty_health -= remain_health + (4 - remain_health % 4)
+        else:
+            empty_health -= remain_health
+
+        empty_health /= 4
+
+        pos_y = 20
+        pos_x = Settings.GAME_WINDOW_WIDTH + 10
+        heart_counter = 0
+        next_image: Optional[pygame.image] = None
+
+        while remain_health > 0:
+            if remain_health - 4 >= 0:
+                next_image = ResourceManager.heart_1
+                remain_health -= 4
+            elif remain_health - 3 >= 0:
+                next_image = ResourceManager.heart_2
+                remain_health -= 3
+            elif remain_health - 2 >= 0:
+                next_image = ResourceManager.heart_3
+                remain_health -= 2
+            elif remain_health - 1 >= 0:
+                next_image = ResourceManager.heart_4
+                remain_health -= 1
+
+            if heart_counter == 10:
+                heart_counter = 0
+                pos_y = 20
+                pos_x += 20
+
+            MainScreen.screen.blit(next_image, (pos_x, pos_y))
+
+            pos_y += 30
+            heart_counter += 1
 
 
 
