@@ -51,6 +51,7 @@ class GameEngine:
 
     _font_game_over: Optional[pygame.font.Font] = None
     _font_prompts: Optional[pygame.font.Font] = None
+    _font_coins: Optional[pygame.font.Font] = None
 
     @staticmethod
     def run():
@@ -78,10 +79,11 @@ class GameEngine:
                         print("Not accepted key")
 
             if GameEngine._is_running:
+                GameEngine._handle_level_change()
                 GameEngine._handle_key_inputs()
+                GameEngine._handle_player_evasion()
                 GameEngine._handle_player_attack()
                 GameEngine._handle_player_damaged()
-                GameEngine._handle_level_change()
                 GameEngine._handle_enemies_movement()
                 GameEngine._handle_enemies_attack()
                 GameEngine._handle_peaceful_entities_actions()
@@ -96,7 +98,7 @@ class GameEngine:
         GameEngine._player = Player(480, Settings.WINDOW_HEIGHT - 192, 20, 3)
         GameEngine._world_map = Map(Settings.WORLD_MAP_WIDTH, Settings.WORLD_MAP_HEIGHT)
         GameEngine.generate_levels()
-        GameEngine._current_level = GameEngine._world_map.get_level(2, 0)
+        GameEngine._current_level = GameEngine._world_map.get_level(0, 2)
         GameEngine._peaceful_entities = GameEngine._current_level.friendly_entity_list
         GameEngine._hostile_entities = GameEngine._current_level.enemies_list
         GameEngine._effects = GameEngine._current_level.effects
@@ -105,6 +107,7 @@ class GameEngine:
 
         GameEngine._font_game_over = pygame.font.Font(os.path.join("resources", "fonts", "THE_LAST_KINGDOM.ttf"), 86)
         GameEngine._font_prompts = pygame.font.SysFont("helvetica.ttf", 20)
+        GameEngine._font_coins = pygame.font.SysFont("helvetica.ttf", 60)
 
     @staticmethod
     def _render_screen():
@@ -112,12 +115,14 @@ class GameEngine:
         MainScreen.render_animated_tiles(GameEngine._current_level)
         MainScreen.render_player(GameEngine._player)
         MainScreen.render_enemies(GameEngine._hostile_entities)
+        MainScreen.render_peaceful_entities(GameEngine._peaceful_entities)
         MainScreen.render_missiles(GameEngine._missiles)
         MainScreen.render_collectibles(GameEngine._items)
         MainScreen.render_containers(GameEngine._chests)
         MainScreen.render_hud(GameEngine._player)
         # MainScreen.render_debug(GameEngine._player, GameEngine._hostile_entities)
-        MainScreen.render_effects(GameEngine._effects, GameEngine._font_game_over, GameEngine._font_prompts)
+        MainScreen.render_effects(GameEngine._effects, GameEngine._font_game_over, GameEngine._font_prompts,
+                                  GameEngine._font_coins, GameEngine._player)
         pygame.display.flip()
 
     @staticmethod
@@ -154,11 +159,17 @@ class GameEngine:
         p_entity = PeacefulEntity(480, Settings.GAME_WINDOW_HEIGHT - 352, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
         levels[9].add_effect(ScreenPrompt(15*32 - 64, 9*32, "to enter the dungeon", True, False, "E", p_entity))
         levels[9].add_peaceful_entity(p_entity)
-        levels[15].add_peaceful_entity(PeacefulEntity(Settings.GAME_WINDOW_WIDTH - 5 * 32, 4 * 32, 1, 0, PeacefulEntityType.TREE_OF_HEALTH))
+        p_entity = PeacefulEntity(Settings.GAME_WINDOW_WIDTH - 5 * 32, 4 * 32, 1, 0, PeacefulEntityType.TREE_OF_HEALTH)
+        levels[15].add_effect(HealingEffect(GameEngine._player, p_entity))
+        levels[15].add_peaceful_entity(p_entity)
 
         p_entity = PeacefulEntity(15*32, Settings.WINDOW_HEIGHT - 32, 1, 0, PeacefulEntityType.DUNGEON_ENTRANCE)
         levels[15].add_effect(ScreenPrompt(15*32 - 64, Settings.WINDOW_HEIGHT - 80, "to leave the dungeon", True, False, triggerable_entity=p_entity))
         levels[15].add_peaceful_entity(p_entity)
+
+        p_entity = PeacefulEntity(14*32, 7*32, 1, 0, PeacefulEntityType.PORTAL)
+        levels[6].add_effect(ScreenPrompt(14*32 - 16, 7*32, "to complete the game", True, False, "E", p_entity))
+        levels[6].add_peaceful_entity(p_entity)
 
         # Chests
         chest = Container(736, Settings.GAME_WINDOW_HEIGHT - 128, ContainerType.STONE_SWORD)
@@ -220,7 +231,7 @@ class GameEngine:
         player: Player = GameEngine._player
 
         player.facing = direction
-        for _ in range(Settings.PLAYER_MOVE_SPEED):
+        for _ in range(GameEngine._player.move_speed):
             if GameEngine._can_entity_move(player) and player.is_alive():
                 player.move()
 
@@ -232,6 +243,19 @@ class GameEngine:
             GameEngine._effects.append(ScreenPrompt(400, Settings.GAME_WINDOW_HEIGHT // 2 - 64, "Game over", False, True))
 
         GameEngine._player.increase_invincible_frame()
+
+    @staticmethod
+    def _handle_player_evasion():
+
+        if GameEngine._player.is_evading_on_cooldown:
+            GameEngine._player.decrease_evasion_cooldown()
+        else:
+            GameEngine._player.decrease_evasion_frame()
+
+    @staticmethod
+    def _start_player_evasion():
+        if GameEngine._player.is_alive() and not GameEngine._player.is_damaged and not GameEngine._player.is_evading and not GameEngine._player.is_evading_on_cooldown:
+            GameEngine._player.start_evasion()
 
     # TODO - jak v2 będzie działać, to tą usuniemy (chyba, że nie będzie xd)
     @staticmethod
@@ -346,8 +370,9 @@ class GameEngine:
 
     @staticmethod
     def _handle_key_inputs():
-
-        if GameEngine.is_pressed(pygame.K_q):
+        if GameEngine.is_pressed(pygame.K_SPACE):
+            GameEngine._start_player_evasion()
+        elif GameEngine.is_pressed(pygame.K_q):
             GameEngine._start_player_attack_animation()
         if GameEngine.is_pressed(pygame.K_w):
             GameEngine._handle_player_movement(MapDirection.NORTH)
@@ -381,6 +406,10 @@ class GameEngine:
                 if peaceful_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
                     if GameEngine._current_level.world_map_x == 2 and GameEngine._current_level.world_map_y == 3:
                         GameEngine._handle_enter_dungeon()
+            elif GameEngine.distance(player.x, player.y, peaceful_entity.x + 32, peaceful_entity.y + 32) <= 50 and \
+                    peaceful_entity.peaceful_entity_type == PeacefulEntityType.PORTAL:
+                    GameEngine._effects.append(FadeOutEffect())
+                    GameEngine._effects.append(ScreenPrompt(400, Settings.GAME_WINDOW_HEIGHT // 2 - 64, "You have won", False, True))
 
         GameEngine._handle_pick_up_items()
 
@@ -403,7 +432,8 @@ class GameEngine:
             if missile.should_animation_end():
                 GameEngine._missiles.remove(missile)
 
-            if not GameEngine._player.is_damaged and missile.bounding_box.colliderect(GameEngine._player.hit_box):
+            if GameEngine._player.is_alive() and not GameEngine._player.is_evading and not GameEngine._player.is_damaged \
+                    and missile.bounding_box.colliderect(GameEngine._player.hit_box):
                 GameEngine._player.damage(missile.damage)
                 GameEngine._player.is_damaged = True
                 GameEngine._missiles.remove(missile)
@@ -420,7 +450,7 @@ class GameEngine:
                 GameEngine._handle_attack_ghost(enemy)
 
             if not enemy.is_attacking and enemy.bounding_box.colliderect(
-                    GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive():
+                    GameEngine._player.hit_box) and not GameEngine._player.is_damaged and GameEngine._player.is_alive() and not GameEngine._player.is_evading:
                 enemy.set_attack_frame(45)
                 GameEngine._player.damage(enemy.attack_damage)
                 GameEngine._player.is_damaged = True
@@ -464,7 +494,14 @@ class GameEngine:
                                 effect.should_show = True
                             else:
                                 effect.should_show = False
+
                         elif isinstance(effect.triggerable_entity, PeacefulEntity) and effect.triggerable_entity.peaceful_entity_type == PeacefulEntityType.DUNGEON_ENTRANCE:
+                            effect.should_show = True
+                        else:
+                            effect.should_show = False
+
+                    elif GameEngine.distance(GameEngine._player.x, GameEngine._player.y, effect.triggerable_entity.x + 32, effect.triggerable_entity.y + 32) <= 50:
+                        if isinstance(effect.triggerable_entity, PeacefulEntity) and effect.triggerable_entity.peaceful_entity_type == PeacefulEntityType.PORTAL:
                             effect.should_show = True
                         else:
                             effect.should_show = False

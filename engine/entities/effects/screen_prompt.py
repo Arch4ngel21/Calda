@@ -1,6 +1,7 @@
 import pygame
 from engine.entities.effects.screen_effect import ScreenEffect
 from engine.entities.entity import Entity
+from engine.entities.player import Player
 from utilities.resource_manager import ResourceManager
 from typing import Optional
 
@@ -14,10 +15,17 @@ class ScreenPrompt(ScreenEffect):
         self._should_show = should_show
         self._additional_key = additional_key
 
-    def show(self, screen: pygame.Surface, font_game_over: pygame.font.Font, font_prompts: pygame.font.Font):
+    def show(self, screen: pygame.Surface, font_game_over: pygame.font.Font, font_prompts: pygame.font.Font,
+             font_coins: pygame.font.Font, player: Player):
         if self._should_show:
             if self._text == "Game over":
                 screen.blit(font_game_over.render(self._text, False, (255, 255, 255)), (self._x, self._y))
+            elif self._text == "You have won":
+                screen.blit(font_game_over.render(self._text, False, (255, 255, 255)), (self._x - 100, self._y))
+                screen.blit(font_coins.render(f"x{player.coins} ", False, (232, 196, 56)), (700, 400))
+                coin_img = ResourceManager.coin.copy()
+                coin_img = pygame.transform.scale(coin_img, (64, 64))
+                screen.blit(coin_img, (750, 385, 64, 64))
             else:
                 if self._additional_key == "E":
                     screen.blit(ResourceManager.key_e, (self._x, self._y))

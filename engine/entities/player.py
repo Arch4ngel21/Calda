@@ -2,6 +2,7 @@ import pygame
 import math
 from utilities.map_direction import MapDirection
 from utilities.resource_manager import ResourceManager
+from utilities.settings import Settings
 from engine.entities.entity import Entity
 
 
@@ -18,7 +19,12 @@ class Player(Entity):
         self._hit_box: pygame.Rect = pygame.Rect(x, y, self.BOUNDING_BOX_SIZE, self.HIT_BOX_SIZE)
         self._attack_frame = 0
         self._is_walking = False
+        self._is_evading = False
+        self._is_evading_on_cooldown = False
+        self._evasion_frame = 0
+        self._evasion_cooldown = 0
         self._image = ResourceManager.player_walking_left_1
+        self._move_speed = Settings.PLAYER_BASE_MOVE_SPEED
 
     def move(self):
         self._is_walking = True
@@ -87,6 +93,10 @@ class Player(Entity):
             self._image = self._image.copy()
             self._image.fill(pygame.Color(160, 0, 0), special_flags=pygame.BLEND_MAX)
 
+        elif self.is_evading:
+            self._image = self._image.copy()
+            self._image.set_alpha(255 * (1 - math.sin(self._evasion_frame / 70.0 * math.pi)))
+
     def draw(self, screen: pygame.Surface):
         screen.blit(self._image, self._hit_box)
 
@@ -112,6 +122,28 @@ class Player(Entity):
         self._animation_frame += 1
         if self._animation_frame == 40:
             self._animation_frame = 0
+
+    def decrease_evasion_frame(self):
+        if self._evasion_frame == 0:
+            self._is_evading = False
+            self._move_speed = Settings.PLAYER_BASE_MOVE_SPEED
+            return
+        elif self._evasion_frame - 1 == 0:
+            self._is_evading_on_cooldown = True
+            self._evasion_cooldown = 100
+
+        self._evasion_frame -= 1
+
+    def decrease_evasion_cooldown(self):
+        if self._evasion_cooldown == 0:
+            self._is_evading_on_cooldown = False
+            return
+        self._evasion_cooldown -= 1
+
+    def start_evasion(self):
+        self._evasion_frame = 50
+        self._is_evading = True
+        self._move_speed = Settings.PLAYER_BASE_MOVE_SPEED + 1
 
     @property
     def has_sword(self) -> bool:
@@ -148,6 +180,26 @@ class Player(Entity):
     @is_walking.setter
     def is_walking(self, value: bool):
         self._is_walking = value
+
+    @property
+    def is_evading(self):
+        return self._is_evading
+
+    @property
+    def is_evading_on_cooldown(self):
+        return self._is_evading_on_cooldown
+
+    @property
+    def move_speed(self):
+        return self._move_speed
+
+    @move_speed.setter
+    def move_speed(self, value: int):
+        self._move_speed = value
+
+    @property
+    def coins(self):
+        return self._coins
 
     def add_y_offset(self):
         self._hit_box.y -= self.compute_y_offset_damaged()

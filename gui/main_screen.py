@@ -8,6 +8,7 @@ from engine.entities.effects.fade_out_effect import FadeOutEffect
 from engine.entities.effects.healing_effect import HealingEffect
 from engine.entities.player import Player
 from engine.entities.hostile_entity import HostileEntity, HostileEntityType
+from engine.entities.peaceful_entity import PeacefulEntity, PeacefulEntityType
 from engine.entities.container import Container
 from engine.entities.missiles.missile import Missile
 from engine.entities.missiles.ghost_fireball import GhostFireball
@@ -261,6 +262,12 @@ class MainScreen:
             enemy.del_y_offset()
 
     @staticmethod
+    def render_peaceful_entities(npc_list: List[PeacefulEntity]):
+        for peaceful_entity in npc_list:
+            if peaceful_entity.peaceful_entity_type == PeacefulEntityType.PORTAL:
+                peaceful_entity.draw(MainScreen.screen)
+
+    @staticmethod
     def render_collectibles(collectibles_list: List[Collectible]):
         for collect in collectibles_list:
             collect.draw(MainScreen.screen)
@@ -278,12 +285,13 @@ class MainScreen:
             container.draw(MainScreen.screen)
 
     @staticmethod
-    def render_effects(effects_list: List[ScreenEffect], font_game_over: pygame.font.Font, font_prompts: pygame.font.Font):
+    def render_effects(effects_list: List[ScreenEffect], font_game_over: pygame.font.Font,
+                       font_prompts: pygame.font.Font, font_coins: pygame.font.Font, player: Player):
         for effect in effects_list:
             if isinstance(effect, ChestOpenEffect) or isinstance(effect, FadeOutEffect):
                 effect.draw(MainScreen.screen)
             elif isinstance(effect, ScreenPrompt):
-                effect.show(MainScreen.screen, font_game_over, font_prompts)
+                effect.show(MainScreen.screen, font_game_over, font_prompts, font_coins, player)
             elif isinstance(effect, HealingEffect):
                 if effect.should_show:
                     effect.update_image()

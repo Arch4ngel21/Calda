@@ -109,6 +109,15 @@ class ResourceManager:
     healing_effect_9 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_9.png")
     healing_effect_10 = pygame.image.load(r"./resources/tiles/healing_effect/healing_effect_10.png")
 
+    portal_1 = pygame.image.load(r"./resources/tiles/portal_1.png")
+    portal_2 = pygame.image.load(r"./resources/tiles/portal_2.png")
+    portal_3 = pygame.image.load(r"./resources/tiles/portal_3.png")
+    portal_4 = pygame.image.load(r"./resources/tiles/portal_4.png")
+    portal_5 = pygame.image.load(r"./resources/tiles/portal_5.png")
+    portal_6 = pygame.image.load(r"./resources/tiles/portal_6.png")
+    portal_7 = pygame.image.load(r"./resources/tiles/portal_7.png")
+    portal_8 = pygame.image.load(r"./resources/tiles/portal_8.png")
+
     player_movement[1][0][0] = player_standing_left_1 = pygame.image.load(r"./resources/entities/player_standing_left_1.png")
     player_movement[1][0][1] = player_standing_left_2 = pygame.image.load(r"./resources/entities/player_standing_left_2.png")
     player_movement[1][1][0] = player_standing_left_sword_1 = pygame.image.load(r"./resources/entities/player_standing_left_sword_1.png")
